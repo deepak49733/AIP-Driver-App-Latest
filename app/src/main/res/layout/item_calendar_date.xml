@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center"
+    android:orientation="vertical"
+    android:paddingVertical="@dimen/_8sdp">
+
+    <TextView
+        android:id="@+id/tvDayName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="M"
+        android:textColor="@color/calendar_day_text"
+        android:textSize="@dimen/_10ssp" />
+
+    <FrameLayout
+        android:id="@+id/flDateContainer"
+        android:layout_width="@dimen/_32sdp"
+        android:layout_height="@dimen/_32sdp"
+        android:layout_marginTop="@dimen/_4sdp"
+        android:background="@drawable/bg_date_item_selected">
+
+        <TextView
+            android:id="@+id/tvDate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="21"
+            android:textColor="@color/calendar_day_text"
+            android:textSize="@dimen/_12ssp" />
+
+    </FrameLayout>
+
+    <LinearLayout
+        android:id="@+id/llIndicators"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="2dp"
+        android:gravity="center"
+        android:orientation="horizontal">
+
+        <View
+            android:id="@+id/indicatorMeeting"
+            android:layout_width="4dp"
+            android:layout_height="4dp"
+            android:background="@color/calendar_indicator_meeting"
+            android:visibility="gone" />
+
+        <View
+            android:id="@+id/indicatorEvent"
+            android:layout_width="4dp"
+            android:layout_height="4dp"
+            android:layout_marginStart="2dp"
+            android:background="@color/calendar_indicator_event"
+            android:visibility="gone" />
+
+        <View
+            android:id="@+id/indicatorShift"
+            android:layout_width="4dp"
+            android:layout_height="4dp"
+            android:layout_marginStart="2dp"
+            android:background="@color/calendar_indicator_shift"
+            android:visibility="gone" />
+    </LinearLayout>
+
+</LinearLayout>

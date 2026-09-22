@@ -1,0 +1,29 @@
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+<TextView android:id="@+id/txt_call"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginLeft="16dp"
+    android:layout_marginTop="16dp"
+    android:drawableLeft="@drawable/ic_user"
+    android:drawablePadding="@dimen/margin_8dp"
+    android:gravity="center"
+    android:text="@string/carmilage"
+     />
+
+<TextView
+android:id="@+id/txt_contact"
+android:layout_width="wrap_content"
+android:layout_height="wrap_content"
+android:layout_below="@+id/txt_call"
+android:layout_marginLeft="16dp"
+android:layout_marginTop="8dp"
+android:layout_marginRight="16dp"
+android:drawableLeft="@drawable/ic_phone"
+android:drawablePadding="@dimen/margin_8dp"
+android:gravity="center"
+android:text="@string/carmilage" />
+</LinearLayout>

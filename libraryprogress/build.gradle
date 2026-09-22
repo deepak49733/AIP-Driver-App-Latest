@@ -1,0 +1,23 @@
+apply plugin: 'com.android.library'
+
+version = "1.0"
+//group = GROUP
+
+android {
+    compileSdkVersion 26
+    buildToolsVersion "26.0.2"
+    namespace "cn.pedant.SweetAlert"
+    defaultConfig {
+        minSdkVersion 9
+    }
+
+    lintOptions {
+        abortOnError false
+    }
+}
+
+dependencies {
+    implementation 'com.pnikosis:materialish-progress:1.0'
+}
+
+//apply from: 'https://raw.github.com/chrisbanes/gradle-mvn-push/master/gradle-mvn-push.gradle'
