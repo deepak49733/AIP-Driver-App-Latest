@@ -393,7 +393,19 @@ public class PhotoDialog extends BottomSheetDialogFragment {
                 updateFarmPhotoState(() -> {
                     activity.runOnUiThread(() -> {
                         // Re-trigger email queueing so SyncWorker sends an updated email after photos
-                        if (activity instanceof OnClickSubmit) {
+                        String finalRideId = rideId;
+                        if (finalRideId == null || finalRideId.equals("0") || finalRideId.isEmpty()) {
+                            finalRideId = parentId;
+                        }
+                        if (finalRideId == null || finalRideId.equals("0") || finalRideId.isEmpty()) {
+                            finalRideId = sharedprefrenceManager.getRideId();
+                        }
+
+                        if (activity instanceof ImprovedFarmList) {
+                            ((ImprovedFarmList) activity).FinishDataMail(farmid, routeId, finalRideId, true);
+                        } else if (activity instanceof com.sc.aipdriver.activities.ui.FarmListRoute) {
+                            ((com.sc.aipdriver.activities.ui.FarmListRoute) activity).FinishDataMail(farmid, routeId, finalRideId);
+                        } else if (activity instanceof OnClickSubmit) {
                             ((OnClickSubmit) activity).onPhotoUpload(true, true);
                         }
                         if (onMailDone != null) onMailDone.onMailDone(true);

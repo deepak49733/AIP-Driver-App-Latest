@@ -1266,6 +1266,7 @@ public class FarmListRoute extends AppCompatActivity implements OnClickSubmit, R
                             }
                         }
                     }
+                    sharedprefrenceManager.clearRideState();
                     logout();
                 }
             }
@@ -1511,6 +1512,7 @@ public class FarmListRoute extends AppCompatActivity implements OnClickSubmit, R
                                 }
                             }
                         }
+                        sharedprefrenceManager.clearRideState();
                         shouldLogout.shouldLogout(true, FarmListRoute.this);
                     } else
                         try {
@@ -2473,7 +2475,10 @@ public class FarmListRoute extends AppCompatActivity implements OnClickSubmit, R
     public void onPhotoUpload(boolean b, boolean sendMail) {
         Log.d("FarmListRoute", "onPhotoUpload: sendMail=" + sendMail);
         if (sendMail) {
-            FinishDataMail(String.valueOf(farmIdd), routeid, String.valueOf(rideIdd));
+            String targetFarmId = (farmIdd != 0) ? String.valueOf(farmIdd) : sharedprefrenceManager.getFID();
+            if (targetFarmId != null && !targetFarmId.isEmpty() && !targetFarmId.equals("0")) {
+                FinishDataMail(targetFarmId, routeid, String.valueOf(rideIdd));
+            }
         }
         getFarmsByRoute();
     }

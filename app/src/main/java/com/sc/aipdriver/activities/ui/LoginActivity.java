@@ -252,8 +252,16 @@ public class LoginActivity extends AppCompatActivity {
         if (sharedprefrenceManager.getUserId() != null && sharedprefrenceManager.getUserId().equalsIgnoreCase("0")) {
 
         } else {
+            String parentId = sharedprefrenceManager.getParentId();
+            String rideId = sharedprefrenceManager.getRideId();
+            String rideStatus = sharedprefrenceManager.getRideStatus();
+
+            boolean isRideActive = parentId != null && !parentId.equals("0") && !parentId.isEmpty()
+                    && rideId != null && !rideId.equals("0") && !rideId.isEmpty()
+                    && (rideStatus == null || !rideStatus.equalsIgnoreCase("End"));
+
             String lastActivityName = sharedprefrenceManager.getLastActiveActivity();
-            if (lastActivityName != null && !lastActivityName.isEmpty()) {
+            if (isRideActive && lastActivityName != null && !lastActivityName.isEmpty()) {
                 try {
                     Class<?> clazz = Class.forName(lastActivityName);
                     Intent intent = new Intent(LoginActivity.this, clazz);
@@ -294,6 +302,8 @@ public class LoginActivity extends AppCompatActivity {
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
+            } else {
+                sharedprefrenceManager.clearLastActiveActivity();
             }
 
             startActivity(new Intent(LoginActivity.this, SelectCar.class));

@@ -50,6 +50,7 @@ import com.sc.aipdriver.activities.dialogs.PhotoDialog
 import com.sc.aipdriver.activities.dialogs.ShowLoading
 import com.sc.aipdriver.activities.fragments.FinishDialog
 import com.sc.aipdriver.activities.fragments.ReceiptDialog
+import com.sc.aipdriver.activities.fragments.SelectCar
 import com.sc.aipdriver.activities.interfaces.ApiClient
 import com.sc.aipdriver.activities.interfaces.ApiInterface
 import com.sc.aipdriver.activities.interfaces.OnClickImprovedFarm
@@ -566,6 +567,13 @@ class ImprovedFarmList : AppCompatActivity(), OnImprovedItemClick, OnClickImprov
                                     }
                                 }
                             }
+
+                            if (parentIdd == 0 && rideIdd == 0 && farmlist.isEmpty()) {
+                                sharedprefrenceManager!!.clearRideState()
+                                Toast.makeText(this@ImprovedFarmList, "No active ride found. Redirecting...", Toast.LENGTH_SHORT).show()
+                                startActivity(Intent(this@ImprovedFarmList, SelectCar::class.java))
+                                finish()
+                            }
                         }
                     } else {
                         try {
@@ -824,6 +832,7 @@ class ImprovedFarmList : AppCompatActivity(), OnImprovedItemClick, OnClickImprov
                     response: Response<CommonError?>
                 ) {
                     if (response.code() == 200) {
+                        sharedprefrenceManager!!.clearRideState()
                         shouldLogout!!.shouldLogout(true, this@ImprovedFarmList)
                     } else try {
                         val loginError = gson!!.fromJson<CommonError?>(
@@ -1347,23 +1356,30 @@ class ImprovedFarmList : AppCompatActivity(), OnImprovedItemClick, OnClickImprov
             FinishData("", "")
 
         if (senddMail) {
-            FinishDataMail(
-                farmIdd.toString(),
-                routeid,
-                rideId
-            )
+            val targetFarmId = if (farmIdd != 0) farmIdd.toString() else sharedprefrenceManager?.fid ?: ""
+            if (targetFarmId.isNotEmpty() && targetFarmId != "0") {
+                FinishDataMail(
+                    targetFarmId,
+                    routeid,
+                    rideId,
+                    true // Force send after photo upload
+                )
+            }
         }
     }
 
     override fun onPhotoUpload(isUpdate: Boolean, senddMail: Boolean) {
         loadFromDB(false)
         if (senddMail) {
-            FinishDataMail(
-                farmIdd.toString(),
-                routeid,
-                rideId,
-                true // Force send after photo upload
-            )
+            val targetFarmId = if (farmIdd != 0) farmIdd.toString() else sharedprefrenceManager?.fid ?: ""
+            if (targetFarmId.isNotEmpty() && targetFarmId != "0") {
+                FinishDataMail(
+                    targetFarmId,
+                    routeid,
+                    rideId,
+                    true // Force send after photo upload
+                )
+            }
         }
     }
     @JvmOverloads
@@ -1386,10 +1402,8 @@ class ImprovedFarmList : AppCompatActivity(), OnImprovedItemClick, OnClickImprov
                 return
             }
             
-            // ✅ STRENGHTENED: Even with force, we enforce a small delay to prevent rapid-fire triggers
-            // from multiple parallel callbacks (e.g. API success + photo queue completion)
             val lastSent = lastMailSentTime[farmId] ?: 0L
-            if (currentTime - lastSent < 3000) { // 3 second minimum between any email trigger for the same farm
+            if (!force && (currentTime - lastSent < 3000)) { // Don't debounce when force is true for photo re-upload
                 Log.d("Analysis__", "FinishDataMail: Debounce (Force-Aware) triggered for $farmId")
                 return
             }
@@ -1416,12 +1430,12 @@ class ImprovedFarmList : AppCompatActivity(), OnImprovedItemClick, OnClickImprov
             }
 
             runOnUiThread {
-                sendActualMail(farmId, routeId, rideId, emailKey)
+                sendActualMail(farmId, routeId, rideId, emailKey, force)
             }
         }
     }
 
-    private fun sendActualMail(farmId: String, routeId: String?, rideId: String?, emailKey: String) {
+    private fun sendActualMail(farmId: String, routeId: String?, rideId: String?, emailKey: String, force: Boolean = false) {
         Log.d("Sendingmail__", "Sending mail for $emailKey")
 
         var finalRideId = rideId
@@ -1440,7 +1454,7 @@ class ImprovedFarmList : AppCompatActivity(), OnImprovedItemClick, OnClickImprov
         }
         
         if (sharedprefrenceManager!!.isSyncMode) {
-            queueFinishMailSync(request, farmId)
+            queueFinishMailSync(request, farmId, force)
             return
         }
         
@@ -1461,7 +1475,7 @@ class ImprovedFarmList : AppCompatActivity(), OnImprovedItemClick, OnClickImprov
                 }
             })
         } catch (e: Exception) {
-            queueFinishMailSync(request, farmId)
+            queueFinishMailSync(request, farmId, force)
         }
     }
 
@@ -1476,7 +1490,7 @@ class ImprovedFarmList : AppCompatActivity(), OnImprovedItemClick, OnClickImprov
         }
     }
 
-    private fun queueFinishMailSync(request: JsonObject, farmId: String?) {
+    private fun queueFinishMailSync(request: JsonObject, farmId: String?, force: Boolean = false) {
 
         val token = sharedprefrenceManager?.token
         if (token.isNullOrEmpty()) {
@@ -1489,10 +1503,8 @@ class ImprovedFarmList : AppCompatActivity(), OnImprovedItemClick, OnClickImprov
             try {
                 val db = getDatabase(this@ImprovedFarmList)
                 
-                // ✅ ENHANCED: Check if an email for this specific farm is already pending.
-                // We check FIRMID instead of the entire payload string to account for rideId changes.
                 val pending = db.rideSyncDao().getPending()
-                val isAlreadyPending = pending.any { p ->
+                val existingEntity = pending.find { p ->
                     if (p.apiType == "FINISH_EMAIL") {
                         try {
                             val pJson = gson?.fromJson(p.payload, JsonObject::class.java)
@@ -1501,9 +1513,14 @@ class ImprovedFarmList : AppCompatActivity(), OnImprovedItemClick, OnClickImprov
                     } else false
                 }
 
-                if (isAlreadyPending) {
-                    Log.d("Offline__", "Skipping FINISH_EMAIL queue: email for farm $farmId is already pending sync")
-                    return@execute
+                if (existingEntity != null) {
+                    if (force) {
+                        // Delete old pending entry to re-queue with updated force payload
+                        db.rideSyncDao().deleteById(existingEntity.id)
+                    } else {
+                        Log.d("Offline__", "Skipping FINISH_EMAIL queue: email for farm $farmId is already pending sync")
+                        return@execute
+                    }
                 }
 
                 db.rideSyncDao().insert(
@@ -1535,6 +1552,7 @@ class ImprovedFarmList : AppCompatActivity(), OnImprovedItemClick, OnClickImprov
                 response: Response<BaseResponse<*>?>
             ) {
                 if (response.code() == 200) {
+                    sharedprefrenceManager!!.clearRideState()
                     logout()
                 }
             }
@@ -1788,7 +1806,7 @@ class ImprovedFarmList : AppCompatActivity(), OnImprovedItemClick, OnClickImprov
                         sharedprefrenceManager!!.rideStatus="Start"
                         navigateToMap(farmIdd);
                     } else if (statusId == 0) {
-                        sharedprefrenceManager!!.rideStatus="End"
+                        sharedprefrenceManager!!.clearRideState()
                     }
                 } else try {
                     showLoading!!.dismiss()

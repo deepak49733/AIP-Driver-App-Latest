@@ -508,4 +508,23 @@ public class SharedprefrenceManager {
         return sharedPreferences.getString(LAST_FARM_NAME, "");
     }
 
+    public void clearLastActiveActivity() {
+        sharedPreferences.edit()
+                .remove(LAST_ACTIVE_ACTIVITY)
+                .remove(LAST_FARM_ID)
+                .remove(LAST_ROUTE_ID)
+                .remove(LAST_ORDER_DATE)
+                .remove(LAST_ROUTE_NAME)
+                .remove(LAST_FARM_NAME)
+                .apply();
+    }
+
+    public void clearRideState() {
+        clearLastActiveActivity();
+        setParentId(0);
+        setRideId(0);
+        setFID("0");
+        setRideStatus("End");
+    }
+
 }
