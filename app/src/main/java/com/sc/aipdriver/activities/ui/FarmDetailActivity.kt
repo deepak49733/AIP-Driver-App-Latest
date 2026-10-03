@@ -153,6 +153,14 @@ class FarmDetailActivity : AppCompatActivity(), OnClickSubmit {
         getFarmInfo(farmId)
 
     }
+
+    fun refreshData() {
+        if (farmId.isNotEmpty()) {
+            getFarmInfo(farmId)
+        }
+        getNextFarm()
+        getAllFarms()
+    }
     private fun getNextFarm() {
         showLoading!!.show()
         val call = apiService!!.getNextFarm(

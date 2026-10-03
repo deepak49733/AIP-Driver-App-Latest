@@ -77,6 +77,12 @@ class ImprovedFarmDetailActivity : AppCompatActivity(), OnClickSubmit, FarmDetai
         getFarmInfo(farmId)
     }
 
+    fun refreshData() {
+        if (farmId.isNotEmpty()) {
+            getFarmInfo(farmId)
+        }
+    }
+
     private fun init() {
         sharedprefrenceManager = SharedprefrenceManager(this)
         apiService = ApiClient.getClient(this).create(ApiInterface::class.java)

@@ -16,7 +16,13 @@ import com.sc.aipdriver.activities.models.PermissionModel
 import com.sc.aipdriver.activities.models.PriorityFarmData
 import com.sc.aipdriver.activities.otherclasses.SharedprefrenceManager
 import com.sc.aipdriver.activities.room.AppDatabase
+import androidx.fragment.app.DialogFragment
+import androidx.fragment.app.FragmentActivity
+import com.sc.aipdriver.activities.dialogs.FarmDetailBottomSheet
+import com.sc.aipdriver.activities.dialogs.FarmDetailSheet
+import com.sc.aipdriver.activities.ui.FarmDetailActivity
 import com.sc.aipdriver.activities.ui.FarmListRoute
+import com.sc.aipdriver.activities.ui.ImprovedFarmDetailActivity
 import com.sc.aipdriver.activities.ui.ImprovedFarmList
 import com.sc.aipdriver.activities.ui.LoginActivity
 import com.sc.aipdriver.activities.fragments.SelectCar
@@ -211,6 +217,28 @@ class AppController : Application(), Application.ActivityLifecycleCallbacks {
                 .setConfirmClickListener { sDialog ->
                     isPopupShowing = false
                     sDialog.dismissWithAnimation()
+                    if (activity is FragmentActivity) {
+                        try {
+                            val fragments = activity.supportFragmentManager.fragments
+                            for (fragment in fragments) {
+                                if (fragment is FarmDetailSheet) {
+                                    Log.d("GlobalStatus", "Refreshing open FarmDetailSheet")
+                                    fragment.refreshData()
+                                    Handler(Looper.getMainLooper()).postDelayed({
+                                        if (fragment.isAdded) fragment.refreshData()
+                                    }, 1000)
+                                } else if (fragment is FarmDetailBottomSheet) {
+                                    Log.d("GlobalStatus", "Refreshing open FarmDetailBottomSheet")
+                                    fragment.refreshData()
+                                    Handler(Looper.getMainLooper()).postDelayed({
+                                        if (fragment.isAdded) fragment.refreshData()
+                                    }, 1000)
+                                }
+                            }
+                        } catch (e: Exception) {
+                            Log.e("GlobalStatus", "Error refreshing fragments: ${e.message}")
+                        }
+                    }
                     if (activity is FarmListRoute) {
                         Log.d("GlobalStatus", "Refreshing FarmListRoute")
                         activity.shouldUpdateRouteAfterRefresh = true
@@ -220,6 +248,16 @@ class AppController : Application(), Application.ActivityLifecycleCallbacks {
                         Log.d("GlobalStatus", "Refreshing ImprovedFarmList")
                         activity.shouldUpdateRouteAfterRefresh = true
                         activity.getFarmsByRoute()
+                        callUpdateRouteApi()
+                    } else if (activity is FarmDetailActivity) {
+                        Log.d("GlobalStatus", "Refreshing FarmDetailActivity")
+                        activity.refreshData()
+                        fetchUpdatedFarmsInBackground()
+                        callUpdateRouteApi()
+                    } else if (activity is ImprovedFarmDetailActivity) {
+                        Log.d("GlobalStatus", "Refreshing ImprovedFarmDetailActivity")
+                        activity.refreshData()
+                        fetchUpdatedFarmsInBackground()
                         callUpdateRouteApi()
                     } else {
                         Log.d("GlobalStatus", "Background refresh")

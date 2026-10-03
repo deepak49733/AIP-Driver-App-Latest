@@ -20,8 +20,8 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class ApiClient {
 
-    public static final String BASE_URL = "https://aip2.nicoleinfosoftdemo.com/";
-//    public static final String BASE_URL = "https://studlink.net/";
+   // public static final String BASE_URL = "https://aip2.nicoleinfosoftdemo.com/";
+    public static final String BASE_URL = "https://studlink.net/";
 //    public static final String BASE_URL = "https://studlinktest.nicoleinfosoftdemo.com/";
 private static Retrofit retrofitHttp1 = null;
     private static Retrofit retrofit = null;

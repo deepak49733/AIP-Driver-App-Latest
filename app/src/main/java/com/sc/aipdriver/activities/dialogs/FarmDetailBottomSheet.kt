@@ -14,6 +14,14 @@ import androidx.core.view.isVisible
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.request.RequestOptions
+import android.util.Log
+import com.sc.aipdriver.activities.interfaces.ApiClient
+import com.sc.aipdriver.activities.interfaces.ApiInterface
+import com.sc.aipdriver.activities.models.ApiResponse
+import com.sc.aipdriver.activities.otherclasses.SharedprefrenceManager
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.sc.aipdriver.R
 import com.sc.aipdriver.activities.models.FarmInfo
@@ -131,5 +139,61 @@ class FarmDetailBottomSheet(
             .load(userImage1)
             .apply(requestOptions)
             .into(ivLargeView)
+    }
+
+    fun refreshData() {
+        val farmId = farmInfo?.userId ?: ""
+        if (farmId.isEmpty() || !isAdded) return
+
+        val ctx = context ?: return
+        val sharedprefrenceManager = SharedprefrenceManager(ctx)
+        val apiService = ApiClient.getClient(ctx).create(ApiInterface::class.java)
+
+        apiService.getFarmInfo(sharedprefrenceManager.getRideId(), farmId).enqueue(object : Callback<ApiResponse?> {
+            override fun onResponse(call: Call<ApiResponse?>, response: Response<ApiResponse?>) {
+                if (response.isSuccessful && response.body()?.data != null && isAdded) {
+                    val data = response.body()!!.data
+                    val v = view ?: return
+
+                    val farmName = v.findViewById<TextView>(R.id.farmName)
+                    val farmMobile = v.findViewById<TextView>(R.id.farmMobile)
+                    val emergencyMobile = v.findViewById<TextView>(R.id.emergencyMobile)
+                    val emergencyAlternateMobile = v.findViewById<TextView>(R.id.emergencyAlternateMobile)
+                    val farmAddress = v.findViewById<TextView>(R.id.farmAddress)
+                    val instruction = v.findViewById<TextView>(R.id.instruction)
+                    val ivFarm = v.findViewById<ImageView>(R.id.iv_farm)
+                    val ivFarmDrop = v.findViewById<ImageView>(R.id.iv_farmdrop)
+
+                    farmName?.text = data.firmName
+                    farmMobile?.text = data.officePhone
+                    emergencyMobile?.text = data.farmEmergencyNo
+                    emergencyAlternateMobile?.text = data.farmEmergencyNo2nd
+                    farmAddress?.text = "${data.address}, ${data.city}, ${data.state} ${data.zipCode}"
+                    instruction?.text = data.callAheadInstructions
+
+                    val requestOptions = RequestOptions()
+                        .diskCacheStrategy(DiskCacheStrategy.ALL)
+                        .error(R.drawable.ic_launcher_)
+
+                    if (ivFarm != null) {
+                        Glide.with(ctx)
+                            .load(data.userImage1)
+                            .apply(requestOptions)
+                            .into(ivFarm)
+                    }
+
+                    if (ivFarmDrop != null) {
+                        Glide.with(ctx)
+                            .load(data.semenDropLocationImg1)
+                            .apply(requestOptions)
+                            .into(ivFarmDrop)
+                    }
+                }
+            }
+
+            override fun onFailure(call: Call<ApiResponse?>, t: Throwable) {
+                Log.e("FarmDetailBottomSheet", "Error refreshing farm info", t)
+            }
+        })
     }
 }
