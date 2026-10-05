@@ -23,8 +23,8 @@ android {
         applicationId = "com.sc.aipdriver"
         minSdk = 24
         targetSdk = 35
-        versionCode = 33
-        versionName = "1.0.33"
+        versionCode = 35
+        versionName = "1.0.35"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 

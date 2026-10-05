@@ -71,7 +71,7 @@ public class FinishDialog extends BottomSheetDialogFragment {
     private Uri imgUri1;
     private Uri imgUri2;
     EditText startingcarodometer;
-int total=0;
+    double total = 0;
     private ActivityResultLauncher<Intent> cameraLauncher;
     EditText totalmiles;
     ImageView imgOne, imgTwo;
@@ -173,9 +173,19 @@ int total=0;
 
                 @Override
                 public void afterTextChanged(Editable editable) {
-                    if (endingcarodometer.getText().toString().trim().length()>0 && startingcarodometer.getText().toString().trim().length()>0) {
-                        total = Integer.parseInt(endingcarodometer.getText().toString()) - Integer.parseInt(startingcarodometer.getText().toString());
-                        totalmiles.setText(total + "");
+                    if (endingcarodometer.getText().toString().trim().length() > 0 && startingcarodometer.getText().toString().trim().length() > 0) {
+                        try {
+                            double endVal = Double.parseDouble(endingcarodometer.getText().toString().trim());
+                            double startVal = Double.parseDouble(startingcarodometer.getText().toString().trim());
+                            total = endVal - startVal;
+                            if (total == (long) total) {
+                                totalmiles.setText(String.valueOf((long) total));
+                            } else {
+                                totalmiles.setText(String.format(Locale.US, "%.2f", total));
+                            }
+                        } catch (NumberFormatException e) {
+                            totalmiles.setText("");
+                        }
                     }
                 }
             });
