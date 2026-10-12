@@ -308,6 +308,12 @@ class AppController : Application(), Application.ActivityLifecycleCallbacks {
                                 
                                 db.improvedPriorityFarmDao().clearImprovedFarms()
                                 db.improvedPriorityFarmDao().insertImprovedFarms(farms)
+
+                                val activeIds = farms.map { it.id }
+                                if (activeIds.isNotEmpty()) {
+                                    db.farmTempBegDao().deleteRemovedFarmTempBags(activeIds, normalizedDate)
+                                }
+
                                 Log.d("GlobalStatus", "Background improved farm update successful: ${farms.size} farms")
 
                                 // Call UpdateRoute API after successful background update

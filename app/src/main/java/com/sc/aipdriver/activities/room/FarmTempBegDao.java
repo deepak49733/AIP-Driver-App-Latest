@@ -20,4 +20,10 @@ public interface FarmTempBegDao {
 
     @Query("UPDATE farm_temp_beg_queue SET isSynced = 1 WHERE farmId = :farmId AND orderDate = :orderDate")
     void markSynced(int farmId, String orderDate);
+
+    @Query("DELETE FROM farm_temp_beg_queue WHERE farmId NOT IN (:activeFarmIds) AND orderDate = :orderDate")
+    void deleteRemovedFarmTempBags(List<Integer> activeFarmIds, String orderDate);
+
+    @Query("DELETE FROM farm_temp_beg_queue WHERE farmId = :farmId")
+    void deleteByFarmId(int farmId);
 }

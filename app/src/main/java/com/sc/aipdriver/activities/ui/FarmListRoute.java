@@ -857,6 +857,19 @@ public class FarmListRoute extends AppCompatActivity implements OnClickSubmit, R
                             emailRequest.setLat(String.valueOf(latitude));
                             emailRequest.setLng(String.valueOf(longitude));
 
+                            // Pass active farm IDs to ensure removed farms are excluded on backend
+                            List<String> activeFids = new ArrayList<>();
+                            if (farmlist != null) {
+                                for (PriorityFarmData farm : farmlist) {
+                                    if (farm != null && farm.getRemove() == 0) {
+                                        activeFids.add(String.valueOf(farm.getId()));
+                                    }
+                                }
+                            }
+                            if (!activeFids.isEmpty()) {
+                                emailRequest.setFID(android.text.TextUtils.join(",", activeFids));
+                            }
+
                             apiService.AllDispatch(emailRequest, sharedprefrenceManager.getToken()).enqueue(new Callback<CommonError>() {
                                 @Override
                                 public void onResponse(Call<CommonError> call, Response<CommonError> response) {
@@ -1076,6 +1089,16 @@ public class FarmListRoute extends AppCompatActivity implements OnClickSubmit, R
 
                             db.improvedPriorityFarmDao().clearImprovedFarms();
                             db.improvedPriorityFarmDao().insertImprovedFarms(farms);
+
+                            List<Integer> activeIds = new ArrayList<>();
+                            for (ImprovedPriorityFarmData f : farms) {
+                                if (f != null && f.getRemove() == 0) {
+                                    activeIds.add(f.getId());
+                                }
+                            }
+                            if (!activeIds.isEmpty()) {
+                                db.farmTempBegDao().deleteRemovedFarmTempBags(activeIds, formattedDate);
+                            }
                         });
 
                     } else {
@@ -1710,13 +1733,23 @@ public class FarmListRoute extends AppCompatActivity implements OnClickSubmit, R
                         farmlist.addAll(farms);
                         routeid = farms.get(0).getRouteID() + "";
                         if (farmlist.size() > 0) {
-                            if (sharedprefrenceManager.isSyncMode()) {
-                                Executors.newSingleThreadExecutor().execute(() -> {
-                                    AppDatabase db = AppDatabase.Companion.getDatabase(FarmListRoute.this);
+                            Executors.newSingleThreadExecutor().execute(() -> {
+                                AppDatabase db = AppDatabase.Companion.getDatabase(FarmListRoute.this);
+                                if (sharedprefrenceManager.isSyncMode()) {
                                     db.priorityFarmDao().clearFarms();
                                     db.priorityFarmDao().insertAll(farms);
-                                });
-                            }
+                                }
+
+                                List<Integer> activeIds = new ArrayList<>();
+                                for (PriorityFarmData f : farms) {
+                                    if (f != null && f.getRemove() == 0) {
+                                        activeIds.add(f.getId());
+                                    }
+                                }
+                                if (!activeIds.isEmpty()) {
+                                    db.farmTempBegDao().deleteRemovedFarmTempBags(activeIds, orderDateForFarmPriority);
+                                }
+                            });
 
                             tvDate.setText("Orders for " + farmlist.get(0).getOrderDate());
                             farmListAdapterByRote.notifyDataSetChanged();
