@@ -306,7 +306,7 @@ public class LoginActivity extends AppCompatActivity {
                 sharedprefrenceManager.clearLastActiveActivity();
             }
 
-            startActivity(new Intent(LoginActivity.this, SelectCar.class));
+            startActivity(new Intent(LoginActivity.this, DashboardActivity.class));
             finish();
         }
     }
@@ -385,7 +385,7 @@ public class LoginActivity extends AppCompatActivity {
         sharedprefrenceManager.setDriverID(logInData.getId());
         sharedprefrenceManager.setOrgIdID(logInData.getOrgId());
         sharedprefrenceManager.isAnotherLoggedIn(logInData.getAnotherDeviceLogin());
-        startActivity(new Intent(LoginActivity.this, SelectCar.class));
+        startActivity(new Intent(LoginActivity.this, DashboardActivity.class));
         finish();
     }
 

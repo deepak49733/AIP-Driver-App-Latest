@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="90dp"
+    android:background="@drawable/border"
+    android:orientation="vertical"
+    android:padding="2dp">
+
+    <!-- Day Number -->
+    <TextView
+        android:id="@+id/tv_day_number"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end"
+        android:text="1"
+        android:textColor="#333333"
+        android:textSize="13sp"
+        android:textStyle="bold" />
+
+    <!-- Route Assignment Tags Container -->
+    <LinearLayout
+        android:id="@+id/ll_route_tags"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/tv_route_tag_1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="1dp"
+            android:background="#D85820"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:padding="1dp"
+            android:text="North Route: Driver"
+            android:textColor="@color/white"
+            android:textSize="8sp"
+            android:textStyle="bold"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/tv_route_tag_2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="1dp"
+            android:background="#D85820"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:padding="1dp"
+            android:text="West Route: Another"
+            android:textColor="@color/white"
+            android:textSize="8sp"
+            android:textStyle="bold"
+            android:visibility="gone" />
+
+    </LinearLayout>
+
+</LinearLayout>

@@ -515,16 +515,12 @@ private void handleSelectedImage(Uri uri) {
 
     private boolean valid() {
         boolean check = true;
-        beginingtimetext = beginingtime.getText().toString();
-        begningcarodometertext = begningcarodometer.getText().toString();
-        if (beginingtimetext.length() == 0) {
-            begningoiltext="0";
-        }else{
-            begningoiltext = begningoil.getText().toString();
+        beginingtimetext = beginingtime.getText().toString().trim();
+        begningcarodometertext = begningcarodometer.getText().toString().trim();
+        begningoiltext = begningoil.getText().toString().trim();
+        if (begningoiltext.isEmpty()) {
+            begningoiltext = "0";
         }
-        //sharedprefrenceManager.setStartOdoMeter(begningcarodometertext);
-//        endingcarodometertext = endingcarodometer.getText().toString();
-//        totalmilestext = totalmiles.getText().toString();
 
         if (beginingtimetext.length() == 0) {
             check = false;
@@ -533,21 +529,12 @@ private void handleSelectedImage(Uri uri) {
             check = false;
             begningcarodometer.setError("Enter Beginning Odometer");
             Toast.makeText(StartActivity.this, "Enter Beginning Odometer", Toast.LENGTH_SHORT).show();
-        }
-//        else if (begningoiltext.length() == 0) {
-//            check = false;
-//            begningoil.setError("Enter Beginning Oil %");
-//            Toast.makeText(StartActivity.this, "Enter Beginning Oil %", Toast.LENGTH_SHORT).show();
-//        }
-        else {
+        } else {
             sharedprefrenceManager.setStartOdoMeter(begningcarodometertext);
             sharedprefrenceManager.setBegningOil(begningoiltext);
         }
         PreferenceUtils.put(this, Global.CARODOMETER, begningcarodometertext);
         System.err.println("getCarmeter  " + sharedprefrenceManager.getCarodometer());
-        // Toast.makeText(StartActivity.this, begningcarodometertext, Toast.LENGTH_SHORT).show();
-//
-
 
         return check;
     }

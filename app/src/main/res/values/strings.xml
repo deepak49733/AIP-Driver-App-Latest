@@ -110,7 +110,29 @@
     <string name="receipt">Receipt</string>
     <string name="add_receipt">Add Receipt</string>
     <string name="view_receipt">View Receipt</string>
-    <string name="uploadphoto">Upload Photo</string>
+    <string name="uploadphoto">Upload Image</string>
+    <string name="start_route">Start Route</string>
+    <string name="route_planning">Route Planning</string>
+    <string name="driver_schedule">Driver Schedule</string>
+    <string name="logout_btn">LOGOUT</string>
+    <string name="studlink_title">StudLink</string>
+    <string name="studlink_logo_desc">StudLink Logo Icon</string>
+    <string name="select_route_title">Select Route</string>
+    <string name="select_vehicle_title">Select Vehicle</string>
+    <string name="back">Back</string>
+    <string name="back_btn_arrow">&lt;&lt; BACK</string>
+    <string name="continue_btn">CONTINUE</string>
+    <string name="order_date_warning">Warning: Your route will populate according to existing farm orders and is subject to change up until the midnight (CST) prior to the order date.</string>
+    <string name="display_farm_paths">Display Farm Paths</string>
+    <string name="farm_paths_explanation">This view shows mapping between farm locations to generally support your planning for geographical regions. This view does not demand that you follow the path and does not take starting and ending locations like boar studs into account.</string>
+    <string name="route_preview">Route preview</string>
+    <string name="head_toward_sd26">Head toward SD-26 W</string>
+    <string name="driver_portal">Driver Portal</string>
+    <string name="username_hint">UserName</string>
+    <string name="password_hint">Password</string>
+    <string name="login_btn_text">LOGIN</string>
+    <string name="monthly_schedule_title">Monthly Schedule</string>
+    <string name="monthly_schedule_warning">Warning: This schedule may be subject to change and will update dynamically when adjusted by the management company.</string>
     <string-array name="farms">
         <item>Farm advance</item>
         <item>Farm kellen</item>

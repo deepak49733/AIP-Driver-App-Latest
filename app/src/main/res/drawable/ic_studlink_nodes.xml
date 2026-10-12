@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="40dp"
+    android:height="40dp"
+    android:viewportWidth="100"
+    android:viewportHeight="100">
+
+    <!-- Spoke lines radiating from central hub (42,50) to outer nodes -->
+    <path
+        android:strokeColor="#D85820"
+        android:strokeWidth="5.5"
+        android:strokeLineCap="round"
+        android:pathData="M 42,50 L 75,22 M 42,50 L 85,46 M 42,50 L 72,74 M 42,50 L 28,22 M 42,50 L 35,80" />
+
+    <!-- Central Hub -->
+    <path
+        android:fillColor="#D85820"
+        android:pathData="M 42,50 m -10,0 a 10,10 0 1,0 20,0 a 10,10 0 1,0 -20,0" />
+
+    <!-- Outer Nodes -->
+    <path
+        android:fillColor="#D85820"
+        android:pathData="M 75,22 m -5.5,0 a 5.5,5.5 0 1,0 11,0 a 5.5,5.5 0 1,0 -11,0" />
+    <path
+        android:fillColor="#D85820"
+        android:pathData="M 85,46 m -5.5,0 a 5.5,5.5 0 1,0 11,0 a 5.5,5.5 0 1,0 -11,0" />
+    <path
+        android:fillColor="#D85820"
+        android:pathData="M 72,74 m -5.5,0 a 5.5,5.5 0 1,0 11,0 a 5.5,5.5 0 1,0 -11,0" />
+    <path
+        android:fillColor="#D85820"
+        android:pathData="M 28,22 m -4.5,0 a 4.5,4.5 0 1,0 9,0 a 4.5,4.5 0 1,0 -9,0" />
+    <path
+        android:fillColor="#D85820"
+        android:pathData="M 35,80 m -4.5,0 a 4.5,4.5 0 1,0 9,0 a 4.5,4.5 0 1,0 -9,0" />
+</vector>
