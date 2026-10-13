@@ -18,7 +18,7 @@ import com.sc.aipdriver.activities.models.PriorityFarmData
         EmailSyncEntity::class,
         ReceiptEntity::class
     ],
-    version = 13
+    version = 14
 )
 abstract class AppDatabase : RoomDatabase() {
 
@@ -45,7 +45,7 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "ride_db"
                 )
-                    .fallbackToDestructiveMigration()
+                    .fallbackToDestructiveMigration(true)
                     .build()
 
                 INSTANCE = instance

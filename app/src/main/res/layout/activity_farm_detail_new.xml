@@ -56,11 +56,11 @@
                 android:orientation="horizontal">
 
                 <TextView
-                    android:layout_width="140dp"
+                    android:layout_width="125dp"
                     android:layout_height="wrap_content"
                     android:text="Farm Name"
                     android:textColor="#555555"
-                    android:textSize="16sp"
+                    android:textSize="15sp"
                     android:textStyle="bold" />
 
                 <TextView
@@ -68,9 +68,10 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
+                    android:ellipsize="end"
                     android:text="M7"
                     android:textColor="#000000"
-                    android:textSize="26sp"
+                    android:textSize="20sp"
                     android:textStyle="bold" />
             </LinearLayout>
 
@@ -83,7 +84,7 @@
                 android:orientation="horizontal">
 
                 <TextView
-                    android:layout_width="140dp"
+                    android:layout_width="125dp"
                     android:layout_height="wrap_content"
                     android:text="Office Phone"
                     android:textColor="#555555"
@@ -109,7 +110,7 @@
                 android:orientation="horizontal">
 
                 <TextView
-                    android:layout_width="140dp"
+                    android:layout_width="125dp"
                     android:layout_height="wrap_content"
                     android:text="Emergency Contact"
                     android:textColor="#555555"
@@ -135,7 +136,7 @@
                 android:orientation="horizontal">
 
                 <TextView
-                    android:layout_width="140dp"
+                    android:layout_width="125dp"
                     android:layout_height="wrap_content"
                     android:text="Alternate Contact"
                     android:textColor="#555555"
@@ -161,7 +162,7 @@
                 android:orientation="horizontal">
 
                 <TextView
-                    android:layout_width="140dp"
+                    android:layout_width="125dp"
                     android:layout_height="wrap_content"
                     android:text="Address"
                     android:textColor="#555555"
@@ -187,7 +188,7 @@
                 android:orientation="horizontal">
 
                 <TextView
-                    android:layout_width="140dp"
+                    android:layout_width="125dp"
                     android:layout_height="wrap_content"
                     android:text="Instructions"
                     android:textColor="#555555"
@@ -254,7 +255,7 @@
                 android:orientation="horizontal">
 
                 <TextView
-                    android:layout_width="140dp"
+                    android:layout_width="125dp"
                     android:layout_height="wrap_content"
                     android:text="Farm Image"
                     android:textColor="#555555"
@@ -263,12 +264,13 @@
 
                 <ImageView
                     android:id="@+id/iv_farm_image"
-                    android:layout_width="120dp"
+                    android:layout_width="110dp"
                     android:layout_height="90dp"
-                    android:background="#E0E0E0"
+                    android:background="#F0F0F0"
                     android:contentDescription="Farm Image"
-                    android:scaleType="centerCrop"
-                    android:src="@drawable/ic_farmlist" />
+                    android:padding="8dp"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/ic_launcher_new" />
             </LinearLayout>
 
             <!-- Drop Location Image Row -->
@@ -280,7 +282,7 @@
                 android:orientation="horizontal">
 
                 <TextView
-                    android:layout_width="140dp"
+                    android:layout_width="125dp"
                     android:layout_height="wrap_content"
                     android:text="Drop Location Image"
                     android:textColor="#555555"
@@ -289,12 +291,13 @@
 
                 <ImageView
                     android:id="@+id/iv_drop_location_image"
-                    android:layout_width="120dp"
+                    android:layout_width="110dp"
                     android:layout_height="90dp"
-                    android:background="#E0E0E0"
+                    android:background="#F0F0F0"
                     android:contentDescription="Drop Location Image"
-                    android:scaleType="centerCrop"
-                    android:src="@drawable/ic_farmlist" />
+                    android:padding="8dp"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/ic_launcher_new" />
             </LinearLayout>
 
         </LinearLayout>

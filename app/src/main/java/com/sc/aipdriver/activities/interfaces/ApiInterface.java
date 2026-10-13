@@ -77,6 +77,15 @@ public interface ApiInterface {
  @GET("/api/FarmPriorityOD")
     Call<BaseResponse<List<PriorityFarmData>>> getFarmsWithPriorityDateWise(@Query("RoutName") String rotename, @Query("orgId") String orgId, @Query("ParentId") String parentId, @Query("DateName") String date, @Query("driverId") String driverId, @Header("Token") String token);
 
+    @GET("/api/FarmINS")
+    Call<BaseResponse<List<PriorityFarmData>>> getFarmINS(
+            @Query("RoutName") String routName,
+            @Query("orgId") String orgId,
+            @Query("DateName") String dateName,
+            @Query("driverid") String driverId,
+            @Header("Token") String token
+    );
+
     @GET("/api/FarmPriorityOD")
     Call<BaseResponse<Integer>> checkFarmPriorityODStatus(
             @Query("RoutName") String rotename,

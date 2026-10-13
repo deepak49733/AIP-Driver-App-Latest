@@ -99,6 +99,30 @@ public class PriorityFarmData {
     @Expose
     private Integer isPhotoUploaded = 0;
 
+    @SerializedName("isINS")
+    @Expose
+    private String isINS;
+
+    @SerializedName("Instruction")
+    @Expose
+    private String instruction;
+
+    public String getIsINS() {
+        return isINS;
+    }
+
+    public void setIsINS(String isINS) {
+        this.isINS = isINS;
+    }
+
+    public String getInstruction() {
+        return instruction;
+    }
+
+    public void setInstruction(String instruction) {
+        this.instruction = instruction;
+    }
+
 
     // getters & setters
 

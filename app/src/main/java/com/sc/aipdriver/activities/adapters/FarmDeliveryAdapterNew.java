@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -48,6 +49,14 @@ public class FarmDeliveryAdapterNew extends RecyclerView.Adapter<FarmDeliveryAda
         String buttonText = name + " Delivery Details";
         holder.btnDeliveryDetails.setText(buttonText);
 
+        boolean hasINS = farmData.getIsINS() != null && farmData.getIsINS().trim().equalsIgnoreCase("yes");
+
+        if (hasINS) {
+            holder.ivNotification.setVisibility(View.VISIBLE);
+        } else {
+            holder.ivNotification.setVisibility(View.GONE);
+        }
+
         holder.btnDeliveryDetails.setOnClickListener(v -> {
             Intent intent = new Intent(context, FarmDetailActivityNew.class);
             intent.putExtra("FarmID", String.valueOf(farmData.getId()));
@@ -55,6 +64,9 @@ public class FarmDeliveryAdapterNew extends RecyclerView.Adapter<FarmDeliveryAda
             intent.putExtra("FarmName", farmData.getFarmName());
             intent.putExtra("ROUTE", routeName);
             intent.putExtra("ROUTEID", routeId);
+            if (farmData.getInstruction() != null) {
+                intent.putExtra("Instruction", farmData.getInstruction());
+            }
             context.startActivity(intent);
         });
     }
@@ -66,10 +78,12 @@ public class FarmDeliveryAdapterNew extends RecyclerView.Adapter<FarmDeliveryAda
 
     static class FarmViewHolder extends RecyclerView.ViewHolder {
         Button btnDeliveryDetails;
+        ImageView ivNotification;
 
         public FarmViewHolder(@NonNull View itemView) {
             super(itemView);
             btnDeliveryDetails = itemView.findViewById(R.id.btn_farm_delivery_details);
+            ivNotification = itemView.findViewById(R.id.iv_ins_notification);
         }
     }
 }

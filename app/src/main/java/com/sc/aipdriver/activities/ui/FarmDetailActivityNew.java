@@ -166,12 +166,12 @@ public class FarmDetailActivityNew extends AppCompatActivity {
 
         if (info.getUserImage1() != null && !info.getUserImage1().isEmpty()) {
             String imageUrl = ApiClient.BASE_URL + info.getUserImage1();
-            Picasso.get().load(imageUrl).placeholder(R.drawable.ic_farmlist).into(ivFarmImage);
+            Picasso.get().load(imageUrl).placeholder(R.drawable.ic_launcher_new).error(R.drawable.ic_launcher_new).into(ivFarmImage);
         }
 
         if (info.getSemenDropLocationImg1() != null && !info.getSemenDropLocationImg1().isEmpty()) {
             String dropUrl = ApiClient.BASE_URL + info.getSemenDropLocationImg1();
-            Picasso.get().load(dropUrl).placeholder(R.drawable.ic_farmlist).into(ivDropLocationImage);
+            Picasso.get().load(dropUrl).placeholder(R.drawable.ic_launcher_new).error(R.drawable.ic_launcher_new).into(ivDropLocationImage);
         }
     }
 }
