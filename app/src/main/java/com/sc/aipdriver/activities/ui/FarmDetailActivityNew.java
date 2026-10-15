@@ -57,6 +57,12 @@ public class FarmDetailActivityNew extends AppCompatActivity {
                 farmId = getIntent().getStringExtra("farmId");
             }
             farmName = getIntent().getStringExtra("FarmName");
+            if (getIntent().hasExtra("Instruction")) {
+                String ins = getIntent().getStringExtra("Instruction");
+                if (ins != null && !ins.trim().isEmpty() && !ins.equalsIgnoreCase("yes") && !ins.equalsIgnoreCase("no")) {
+                    fullInstructionsText = ins.trim();
+                }
+            }
         }
 
         initViews();
@@ -95,10 +101,12 @@ public class FarmDetailActivityNew extends AppCompatActivity {
         if (farmName != null && !farmName.isEmpty()) {
             tvFarmName.setText(farmName);
         } else {
-            tvFarmName.setText("M7");
+            tvFarmName.setText("Test North Farm 4");
         }
 
-        fullInstructionsText = "Sample deadline is 1-1:30pm M/W/F. Notify John Zierke if deadline is expected to not be met due to weather, traffic or delays.";
+        if (fullInstructionsText == null || fullInstructionsText.trim().isEmpty()) {
+            fullInstructionsText = "Please carefully test the functionality and report any errors or bugs whenever it does not behave as expected.\r\nTest on Demo3.";
+        }
         tvInstructions.setText(fullInstructionsText);
     }
 
@@ -155,23 +163,25 @@ public class FarmDetailActivityNew extends AppCompatActivity {
         }
 
         String instructions = info.getCallAheadInstructions();
-        if (instructions == null || instructions.isEmpty()) {
+        if (instructions == null || instructions.trim().isEmpty() || instructions.equalsIgnoreCase("yes") || instructions.equalsIgnoreCase("no")) {
             instructions = info.getDirectionToSemenDropSite();
         }
 
-        if (instructions != null && !instructions.isEmpty()) {
-            fullInstructionsText = instructions;
+        if (instructions != null && !instructions.trim().isEmpty() && !instructions.equalsIgnoreCase("yes") && !instructions.equalsIgnoreCase("no")) {
+            fullInstructionsText = instructions.trim();
+            tvInstructions.setText(fullInstructionsText);
+        } else if (fullInstructionsText != null && !fullInstructionsText.isEmpty()) {
             tvInstructions.setText(fullInstructionsText);
         }
 
         if (info.getUserImage1() != null && !info.getUserImage1().isEmpty()) {
             String imageUrl = ApiClient.BASE_URL + info.getUserImage1();
-            Picasso.get().load(imageUrl).placeholder(R.drawable.ic_launcher_new).error(R.drawable.ic_launcher_new).into(ivFarmImage);
+            Picasso.get().load(imageUrl).placeholder(R.drawable.ic_studlink_nodes).error(R.drawable.ic_studlink_nodes).into(ivFarmImage);
         }
 
         if (info.getSemenDropLocationImg1() != null && !info.getSemenDropLocationImg1().isEmpty()) {
             String dropUrl = ApiClient.BASE_URL + info.getSemenDropLocationImg1();
-            Picasso.get().load(dropUrl).placeholder(R.drawable.ic_launcher_new).error(R.drawable.ic_launcher_new).into(ivDropLocationImage);
+            Picasso.get().load(dropUrl).placeholder(R.drawable.ic_studlink_nodes).error(R.drawable.ic_studlink_nodes).into(ivDropLocationImage);
         }
     }
 }

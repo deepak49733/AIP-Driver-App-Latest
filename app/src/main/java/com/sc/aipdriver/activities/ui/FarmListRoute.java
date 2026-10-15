@@ -736,17 +736,7 @@ public class FarmListRoute extends AppCompatActivity implements OnClickSubmit, R
         ivBack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
-                backPressed = true;
-                if (farmlist.size() > 0) {
-                    if (isAnyFarmGreen()) {
-                        Toast.makeText(FarmListRoute.this, "Please complete or cancel the ride first.", Toast.LENGTH_SHORT).show();
-                        return;
-                    }
-                }
-                checkRide();
-
-
+                finish();
             }
         });
         tvCancel.setOnClickListener(new View.OnClickListener() {
@@ -1197,16 +1187,8 @@ public class FarmListRoute extends AppCompatActivity implements OnClickSubmit, R
 
     @Override
     public void onBackPressed() {
-
-        backPressed = true;
-        if (isAnyFarmGreen()) {
-            Toast.makeText(FarmListRoute.this, "Please complete or cancel the ride first.", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        checkRide();
-        //  goToDateSelection();
-
+        super.onBackPressed();
+        finish();
     }
 
 
@@ -1802,8 +1784,8 @@ public class FarmListRoute extends AppCompatActivity implements OnClickSubmit, R
             showNoInternetRetryDialog(this::getFarmsByRoute);
             return;
         }
-        ivBack.setVisibility(GONE);
-        title.setVisibility(GONE);
+        ivBack.setVisibility(View.VISIBLE);
+        title.setVisibility(View.VISIBLE);
         Executors.newSingleThreadExecutor().execute(() -> {
 
             AppDatabase db = AppDatabase.Companion.getDatabase(FarmListRoute.this);
