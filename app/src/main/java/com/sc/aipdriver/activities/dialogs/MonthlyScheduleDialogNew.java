@@ -97,11 +97,13 @@ public class MonthlyScheduleDialogNew extends DialogFragment {
             svContent.setVisibility(VISIBLE);
         });
 
-        // CONTINUE button click -> launch MonthlyScheduleActivityNew
+        // CONTINUE button click -> launch MonthlyScheduleActivityNew with selected year and month
         btnContinue.setOnClickListener(v -> {
             dismiss();
             if (getActivity() != null) {
                 Intent intent = new Intent(getActivity(), MonthlyScheduleActivityNew.class);
+                intent.putExtra("selected_year", datePicker.getYear());
+                intent.putExtra("selected_month", datePicker.getMonth() + 1); // 1-indexed month
                 startActivity(intent);
             }
         });

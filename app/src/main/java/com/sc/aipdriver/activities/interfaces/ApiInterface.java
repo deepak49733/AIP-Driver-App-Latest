@@ -21,6 +21,8 @@ import com.sc.aipdriver.activities.models.ReceiptDetails;
 import com.sc.aipdriver.activities.models.ReceiptResponse;
 import com.sc.aipdriver.activities.models.ReceiptResponseMain;
 import com.sc.aipdriver.activities.models.RideFinishRequest;
+import com.sc.aipdriver.activities.models.RouteDriverScheduleRequest;
+import com.sc.aipdriver.activities.models.RouteDriverScheduleResponse;
 import com.sc.aipdriver.activities.models.RouteListData;
 import com.sc.aipdriver.activities.models.RouteLog;
 import com.sc.aipdriver.activities.models.StartDataSend;
@@ -241,5 +243,11 @@ public interface ApiInterface {
             @Part MultipartBody.Part img2,
             @Part MultipartBody.Part img3,
             @Part MultipartBody.Part img4
+    );
+
+    @POST("/api/RouteDriverSchedule")
+    Call<RouteDriverScheduleResponse> getRouteDriverSchedule(
+            @Body RouteDriverScheduleRequest request,
+            @Header("Token") String token
     );
 }
