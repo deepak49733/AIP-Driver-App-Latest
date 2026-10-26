@@ -42,6 +42,7 @@
                 android:focusable="true"
                 android:padding="2dp"
                 android:src="@drawable/ic_close"
+                android:visibility="gone"
                 app:tint="@color/white" />
         </RelativeLayout>
 

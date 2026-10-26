@@ -20,11 +20,18 @@ import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentActivity
 import com.sc.aipdriver.activities.dialogs.FarmDetailBottomSheet
 import com.sc.aipdriver.activities.dialogs.FarmDetailSheet
+import com.sc.aipdriver.activities.dialogs.DatePickerFullScreenDialog
+import com.sc.aipdriver.activities.dialogs.MonthlyScheduleDialogNew
+import com.sc.aipdriver.activities.dialogs.OrderDateDialogNew
+import com.sc.aipdriver.activities.ui.CalendarActivity
 import com.sc.aipdriver.activities.ui.FarmDetailActivity
 import com.sc.aipdriver.activities.ui.FarmListRoute
 import com.sc.aipdriver.activities.ui.ImprovedFarmDetailActivity
 import com.sc.aipdriver.activities.ui.ImprovedFarmList
 import com.sc.aipdriver.activities.ui.LoginActivity
+import com.sc.aipdriver.activities.ui.MonthlyScheduleActivityNew
+import com.sc.aipdriver.activities.ui.SelectRoute
+import com.sc.aipdriver.activities.ui.SelectRouteNew
 import com.sc.aipdriver.activities.fragments.SelectCar
 import com.sc.aipdriver.activities.worker.SyncScheduler
 import retrofit2.Call
@@ -73,12 +80,44 @@ class AppController : Application(), Application.ActivityLifecycleCallbacks {
         handler?.post(statusCheckRunnable!!)
     }
 
+    private fun isRoutePlanningOrScheduleActive(activity: Activity?): Boolean {
+        if (activity == null) return false
+
+        if (activity is SelectRouteNew ||
+            activity is SelectRoute ||
+            activity is MonthlyScheduleActivityNew ||
+            activity is CalendarActivity
+        ) {
+            return true
+        }
+
+        if (activity is FragmentActivity) {
+            try {
+                val fragments = activity.supportFragmentManager.fragments
+                for (fragment in fragments) {
+                    if (fragment != null && fragment.isVisible) {
+                        if (fragment is MonthlyScheduleDialogNew ||
+                            fragment is OrderDateDialogNew ||
+                            fragment is DatePickerFullScreenDialog
+                        ) {
+                            return true
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e("GlobalStatus", "Error checking fragments: ${e.message}")
+            }
+        }
+
+        return false
+    }
+
     private fun checkGlobalRouteStatus() {
         val activity = currentActivity
         Log.d("GlobalStatus", "checkGlobalRouteStatus: currentActivity = ${activity?.javaClass?.simpleName}, isPopupShowing = $isPopupShowing")
 
-        if (activity == null || activity is LoginActivity || isPopupShowing) {
-            Log.d("GlobalStatus", "Check skipped: activity null, LoginActivity, or popup showing")
+        if (activity == null || activity is LoginActivity || isPopupShowing || isRoutePlanningOrScheduleActive(activity)) {
+            Log.d("GlobalStatus", "Check skipped: activity null, LoginActivity, Route Planning/Schedule active, or popup showing")
             return
         }
         if (!isInternetAvailable(this)) {
@@ -205,7 +244,7 @@ class AppController : Application(), Application.ActivityLifecycleCallbacks {
 
     private fun showGlobalPopup() {
         val activity = currentActivity
-        if (activity == null || activity.isFinishing || activity.isDestroyed || isPopupShowing) return
+        if (activity == null || activity.isFinishing || activity.isDestroyed || isPopupShowing || isRoutePlanningOrScheduleActive(activity)) return
 
         isPopupShowing = true
         Log.d("GlobalStatus", "Displaying popup on ${activity.javaClass.simpleName}")

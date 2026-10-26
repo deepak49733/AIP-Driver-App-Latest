@@ -56,6 +56,7 @@ class FarmDetailSheet (
         clLargeView.visibility=VISIBLE
         val requestOptions = RequestOptions()
             .diskCacheStrategy(DiskCacheStrategy.ALL)
+            .placeholder(R.drawable.ic_launcher_)
             .error(R.drawable.ic_launcher_)
         Glide.with(requireContext())
             .load(userImage1)
@@ -106,6 +107,7 @@ class FarmDetailSheet (
 
             val requestOptions = RequestOptions()
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
+                .placeholder(R.drawable.ic_launcher_)
                 .error(R.drawable.ic_launcher_)
             Log.d("Analysis__","Loading farm image with URL: ${ApiClient.BASE_URL+it.userImage1}")
             Glide.with(requireContext())
@@ -231,6 +233,7 @@ class FarmDetailSheet (
 
                                 val requestOptions = RequestOptions()
                                     .diskCacheStrategy(DiskCacheStrategy.ALL)
+                                    .placeholder(R.drawable.ic_launcher_)
                                     .error(R.drawable.ic_launcher_)
 
                                 val userImg = updatedFarm.userImage1 ?: ""

@@ -291,7 +291,6 @@ public class MonthlyScheduleActivityNew extends AppCompatActivity implements Cal
             TextView tvRouteName = itemView.findViewById(R.id.tv_detail_route_name);
             TextView tvDriverName = itemView.findViewById(R.id.tv_detail_driver_name);
             TextView tvScheduleDate = itemView.findViewById(R.id.tv_detail_schedule_date);
-            TextView tvIds = itemView.findViewById(R.id.tv_detail_ids);
 
             String badgeText = "Route #" + (i + 1) + ": " + (item.getRouteName() != null ? item.getRouteName() : "");
             tvItemBadge.setText(badgeText);
@@ -300,13 +299,12 @@ public class MonthlyScheduleActivityNew extends AppCompatActivity implements Cal
             tvDriverName.setText(item.getDriverName() != null && !item.getDriverName().isEmpty() ? item.getDriverName() : "N/A");
             tvScheduleDate.setText(item.getScheduleDate() != null && !item.getScheduleDate().isEmpty() ? item.getScheduleDate() : "N/A");
 
-            String idsText = "Route ID: " + item.getRouteId() + "  |  Driver ID: " + item.getDriverId();
-            tvIds.setText(idsText);
-
             llItemsContainer.addView(itemView);
         }
 
-        ivClose.setOnClickListener(v -> dialog.dismiss());
+        if (ivClose != null) {
+            ivClose.setOnClickListener(v -> dialog.dismiss());
+        }
         btnClose.setOnClickListener(v -> dialog.dismiss());
 
         dialog.show();

@@ -397,7 +397,7 @@
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:id="@+id/iv_largeview"
-            android:src="@drawable/ic_launcher_"
+            android:src="@drawable/ic_studlink_nodes"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"

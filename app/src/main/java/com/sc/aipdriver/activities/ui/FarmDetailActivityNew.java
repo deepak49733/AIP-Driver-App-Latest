@@ -101,13 +101,15 @@ public class FarmDetailActivityNew extends AppCompatActivity {
         if (farmName != null && !farmName.isEmpty()) {
             tvFarmName.setText(farmName);
         } else {
-            tvFarmName.setText("Test North Farm 4");
+            tvFarmName.setText("");
         }
 
-        if (fullInstructionsText == null || fullInstructionsText.trim().isEmpty()) {
-            fullInstructionsText = "Please carefully test the functionality and report any errors or bugs whenever it does not behave as expected.\r\nTest on Demo3.";
+        if (fullInstructionsText != null && !fullInstructionsText.trim().isEmpty()) {
+            tvInstructions.setText(fullInstructionsText);
+        } else {
+            fullInstructionsText = "";
+            tvInstructions.setText("");
         }
-        tvInstructions.setText(fullInstructionsText);
     }
 
     private void showFullInstructionsDialog() {
@@ -142,25 +144,11 @@ public class FarmDetailActivityNew extends AppCompatActivity {
     private void bindFarmInfo(FarmInfo info) {
         if (info == null) return;
 
-        if (info.getFirmName() != null && !info.getFirmName().isEmpty()) {
-            tvFarmName.setText(info.getFirmName());
-        }
-
-        if (info.getOfficePhone() != null && !info.getOfficePhone().isEmpty()) {
-            tvOfficePhone.setText(info.getOfficePhone());
-        }
-
-        if (info.getFarmEmergencyNo() != null && !info.getFarmEmergencyNo().isEmpty()) {
-            tvEmergencyContact.setText(info.getFarmEmergencyNo());
-        }
-
-        if (info.getFarmEmergencyNo2nd() != null && !info.getFarmEmergencyNo2nd().isEmpty()) {
-            tvAlternateContact.setText(info.getFarmEmergencyNo2nd());
-        }
-
-        if (info.getAddress() != null && !info.getAddress().isEmpty()) {
-            tvAddress.setText(info.getAddress());
-        }
+        tvFarmName.setText(info.getFirmName() != null ? info.getFirmName() : (farmName != null ? farmName : ""));
+        tvOfficePhone.setText(info.getOfficePhone() != null ? info.getOfficePhone() : "");
+        tvEmergencyContact.setText(info.getFarmEmergencyNo() != null ? info.getFarmEmergencyNo() : "");
+        tvAlternateContact.setText(info.getFarmEmergencyNo2nd() != null ? info.getFarmEmergencyNo2nd() : "");
+        tvAddress.setText(info.getAddress() != null ? info.getAddress() : "");
 
         String instructions = info.getCallAheadInstructions();
         if (instructions == null || instructions.trim().isEmpty() || instructions.equalsIgnoreCase("yes") || instructions.equalsIgnoreCase("no")) {
@@ -170,18 +158,25 @@ public class FarmDetailActivityNew extends AppCompatActivity {
         if (instructions != null && !instructions.trim().isEmpty() && !instructions.equalsIgnoreCase("yes") && !instructions.equalsIgnoreCase("no")) {
             fullInstructionsText = instructions.trim();
             tvInstructions.setText(fullInstructionsText);
-        } else if (fullInstructionsText != null && !fullInstructionsText.isEmpty()) {
+        } else if (fullInstructionsText != null && !fullInstructionsText.trim().isEmpty()) {
             tvInstructions.setText(fullInstructionsText);
+        } else {
+            fullInstructionsText = "";
+            tvInstructions.setText("");
         }
 
-        if (info.getUserImage1() != null && !info.getUserImage1().isEmpty()) {
+        if (info.getUserImage1() != null && !info.getUserImage1().trim().isEmpty()) {
             String imageUrl = ApiClient.BASE_URL + info.getUserImage1();
-            Picasso.get().load(imageUrl).placeholder(R.drawable.ic_studlink_nodes).error(R.drawable.ic_studlink_nodes).into(ivFarmImage);
+            Picasso.get().load(imageUrl).placeholder(R.drawable.ic_launcher_).error(R.drawable.ic_launcher_).into(ivFarmImage);
+        } else {
+            ivFarmImage.setImageResource(R.drawable.ic_launcher_);
         }
 
-        if (info.getSemenDropLocationImg1() != null && !info.getSemenDropLocationImg1().isEmpty()) {
+        if (info.getSemenDropLocationImg1() != null && !info.getSemenDropLocationImg1().trim().isEmpty()) {
             String dropUrl = ApiClient.BASE_URL + info.getSemenDropLocationImg1();
-            Picasso.get().load(dropUrl).placeholder(R.drawable.ic_studlink_nodes).error(R.drawable.ic_studlink_nodes).into(ivDropLocationImage);
+            Picasso.get().load(dropUrl).placeholder(R.drawable.ic_launcher_).error(R.drawable.ic_launcher_).into(ivDropLocationImage);
+        } else {
+            ivDropLocationImage.setImageResource(R.drawable.ic_launcher_);
         }
     }
 }

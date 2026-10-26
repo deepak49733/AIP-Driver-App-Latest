@@ -76,6 +76,12 @@ public class FarmListRouteNew extends AppCompatActivity {
         fetchFarms();
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        fetchFarms();
+    }
+
     private void initViews() {
         ivBack = findViewById(R.id.iv_back);
         tvRouteTitle = findViewById(R.id.tv_route_title);

@@ -320,8 +320,19 @@ class ImprovedFarmDetailActivity : AppCompatActivity(), OnClickSubmit, FarmDetai
                         img1 = data.semenDropLocationImg1 ?: ""
                         img2 = data.userImage1 ?: ""
                         
-                        Picasso.get().load(img2).placeholder(R.drawable.ic_launcher_).into(ivFarm)
-                        Picasso.get().load(img1).placeholder(R.drawable.ic_launcher_).into(ivFarmdrop)
+                        if (img2.isNotEmpty()) {
+                            val imageUrl = if (img2.startsWith("http")) img2 else ApiClient.BASE_URL + img2
+                            Picasso.get().load(imageUrl).placeholder(R.drawable.ic_launcher_).error(R.drawable.ic_launcher_).into(ivFarm)
+                        } else {
+                            ivFarm.setImageResource(R.drawable.ic_launcher_)
+                        }
+
+                        if (img1.isNotEmpty()) {
+                            val dropUrl = if (img1.startsWith("http")) img1 else ApiClient.BASE_URL + img1
+                            Picasso.get().load(dropUrl).placeholder(R.drawable.ic_launcher_).error(R.drawable.ic_launcher_).into(ivFarmdrop)
+                        } else {
+                            ivFarmdrop.setImageResource(R.drawable.ic_launcher_)
+                        }
                     }
                 }
             }
