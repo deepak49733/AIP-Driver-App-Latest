@@ -103,7 +103,7 @@ class FarmDetailSheet (
                     farmAddress.text = "Invalid location"
                 }
             }
-            instruction.text = it.callaheadinstructionstext
+            instruction.text = if (!it.instruction.isNullOrBlank()) it.instruction else it.callaheadinstructionstext
 
             val requestOptions = RequestOptions()
                 .diskCacheStrategy(DiskCacheStrategy.ALL)

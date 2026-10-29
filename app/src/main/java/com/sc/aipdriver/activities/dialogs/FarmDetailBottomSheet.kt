@@ -81,7 +81,7 @@ class FarmDetailBottomSheet(
             emergencyMobile.text = it.farmEmergencyNo
             emergencyAlternateMobile.text = it.farmEmergencyNo2nd
             farmAddress.text = "${it.address}, ${it.city}, ${it.state} ${it.zipCode}"
-            instruction.text = it.callAheadInstructions
+            instruction.text = if (!it.instruction.isNullOrBlank()) it.instruction else it.callAheadInstructions
 
             val requestOptions = RequestOptions()
                 .diskCacheStrategy(DiskCacheStrategy.ALL)

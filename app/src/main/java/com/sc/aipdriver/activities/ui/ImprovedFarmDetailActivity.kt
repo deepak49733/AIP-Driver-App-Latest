@@ -316,7 +316,7 @@ class ImprovedFarmDetailActivity : AppCompatActivity(), OnClickSubmit, FarmDetai
                         emergencyMobile.text = data.farmEmergencyNo
                         emergencyAlternateMobile.text = data.farmEmergencyNo2nd
                         farmAddress.text = data.address
-                        instruction.text = data.callAheadInstructions
+                        instruction.text = if (!data.instruction.isNullOrBlank()) data.instruction else data.callAheadInstructions
                         img1 = data.semenDropLocationImg1 ?: ""
                         img2 = data.userImage1 ?: ""
                         

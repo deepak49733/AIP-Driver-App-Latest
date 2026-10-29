@@ -60,6 +60,11 @@ public class ImprovedPriorityFarmData {
     @SerializedName("Callaheadinstructionstext")
     @Expose
     private String Callaheadinstructionstext;
+
+    @SerializedName("Instruction")
+    @Expose
+    private String instruction;
+
     @SerializedName("DelAddress")
     @Expose
     private String DelAddress;
@@ -242,6 +247,14 @@ public class ImprovedPriorityFarmData {
 
     public void setFarmName(String farmName) {
         this.farmName = farmName;
+    }
+
+    public String getInstruction() {
+        return instruction;
+    }
+
+    public void setInstruction(String instruction) {
+        this.instruction = instruction;
     }
 
     public String getOrderDate() {

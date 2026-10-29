@@ -123,7 +123,7 @@
     <string name="back_btn_arrow">&lt;&lt; BACK</string>
     <string name="continue_btn">CONTINUE</string>
     <string name="order_date_warning">Warning: Your route will populate according to existing farm orders and is subject to change up until the midnight (CST) prior to the order date.</string>
-    <string name="display_farm_paths">Display Farm Paths</string>
+    <string name="display_farm_paths">Display Farm Locations</string>
     <string name="farm_paths_explanation">This view shows mapping between farm locations to generally support your planning for geographical regions. This view does not demand that you follow the path and does not take starting and ending locations like boar studs into account.</string>
     <string name="route_preview">Route preview</string>
     <string name="head_toward_sd26">Head toward SD-26 W</string>

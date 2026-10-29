@@ -6,6 +6,7 @@ import android.util.Log;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
@@ -94,7 +95,7 @@ public class FarmListRouteNew extends AppCompatActivity {
         if (routeName != null && !routeName.isEmpty()) {
             tvRouteTitle.setText(routeName);
         } else {
-            tvRouteTitle.setText("Test North");
+            tvRouteTitle.setText("");
         }
 
         String formattedDateDisplay = formatDisplayDate(rawDate);
@@ -104,7 +105,8 @@ public class FarmListRouteNew extends AppCompatActivity {
 
     private String formatDisplayDate(String inputDate) {
         if (inputDate == null || inputDate.isEmpty()) {
-            return "10/12/2026";
+            Calendar cal = Calendar.getInstance();
+            return new SimpleDateFormat("MM/dd/yyyy", Locale.US).format(cal.getTime());
         }
         try {
             SimpleDateFormat inputFormat;
@@ -230,71 +232,21 @@ public class FarmListRouteNew extends AppCompatActivity {
                     farmDataList.addAll(response.body().getData());
                     adapter.notifyDataSetChanged();
                 } else {
-                    populateSampleFarms();
+                    showNoDataAvailable();
                 }
             }
 
             @Override
             public void onFailure(@NonNull Call<BaseResponse<List<PriorityFarmData>>> call, @NonNull Throwable t) {
                 Log.e("FarmListRouteNew", "Error fetching fallback farms: " + t.getMessage());
-                populateSampleFarms();
+                showNoDataAvailable();
             }
         });
     }
 
-    private void populateSampleFarms() {
+    private void showNoDataAvailable() {
         farmDataList.clear();
-
-        String prefix = (routeName != null && !routeName.isEmpty()) ? routeName : "Test North";
-
-        if (prefix.toLowerCase().contains("north")) {
-            PriorityFarmData farm1 = new PriorityFarmData();
-            farm1.setId(101);
-            farm1.setFarmName(prefix + " Farm 4");
-            farm1.setIsINS("Yes");
-            farm1.setInstruction("Sample deadline is 1-1:30pm M/W/F. Notify John Zierke if deadline is expected to not be met due to weather or delays.");
-
-            PriorityFarmData farm2 = new PriorityFarmData();
-            farm2.setId(102);
-            farm2.setFarmName(prefix + " Farm 1");
-            farm2.setIsINS("No");
-
-            PriorityFarmData farm3 = new PriorityFarmData();
-            farm3.setId(103);
-            farm3.setFarmName(prefix + " Farm 3");
-            farm3.setIsINS("No");
-
-            PriorityFarmData farm4 = new PriorityFarmData();
-            farm4.setId(104);
-            farm4.setFarmName(prefix + " Farm 2");
-            farm4.setIsINS("No");
-
-            farmDataList.add(farm1);
-            farmDataList.add(farm2);
-            farmDataList.add(farm3);
-            farmDataList.add(farm4);
-        } else {
-            PriorityFarmData farm1 = new PriorityFarmData();
-            farm1.setId(101);
-            farm1.setFarmName("M7");
-            farm1.setIsINS("Yes");
-            farm1.setInstruction("Sample deadline is 1-1:30pm M/W/F. Notify John Zierke if deadline is expected to not be met due to weather or delays.");
-
-            PriorityFarmData farm2 = new PriorityFarmData();
-            farm2.setId(102);
-            farm2.setFarmName("Nordic");
-            farm2.setIsINS("No");
-
-            PriorityFarmData farm3 = new PriorityFarmData();
-            farm3.setId(103);
-            farm3.setFarmName("Hillside");
-            farm3.setIsINS("No");
-
-            farmDataList.add(farm1);
-            farmDataList.add(farm2);
-            farmDataList.add(farm3);
-        }
-
         adapter.notifyDataSetChanged();
+        Toast.makeText(FarmListRouteNew.this, "No Farms Available", Toast.LENGTH_SHORT).show();
     }
 }

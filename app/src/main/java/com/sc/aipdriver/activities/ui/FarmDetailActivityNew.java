@@ -150,15 +150,13 @@ public class FarmDetailActivityNew extends AppCompatActivity {
         tvAlternateContact.setText(info.getFarmEmergencyNo2nd() != null ? info.getFarmEmergencyNo2nd() : "");
         tvAddress.setText(info.getAddress() != null ? info.getAddress() : "");
 
-        String instructions = info.getCallAheadInstructions();
+        String instructions = info.getInstruction();
         if (instructions == null || instructions.trim().isEmpty() || instructions.equalsIgnoreCase("yes") || instructions.equalsIgnoreCase("no")) {
-            instructions = info.getDirectionToSemenDropSite();
+            instructions = fullInstructionsText;
         }
 
         if (instructions != null && !instructions.trim().isEmpty() && !instructions.equalsIgnoreCase("yes") && !instructions.equalsIgnoreCase("no")) {
             fullInstructionsText = instructions.trim();
-            tvInstructions.setText(fullInstructionsText);
-        } else if (fullInstructionsText != null && !fullInstructionsText.trim().isEmpty()) {
             tvInstructions.setText(fullInstructionsText);
         } else {
             fullInstructionsText = "";

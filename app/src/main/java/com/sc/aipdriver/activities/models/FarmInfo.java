@@ -91,6 +91,10 @@ public class FarmInfo {
     @SerializedName("DirectionstoSemenDropSite")
     private String directionToSemenDropSite;
 
+    @SerializedName("Instruction")
+    @Expose
+    private String instruction;
+
     @SerializedName("Latitude")
     private String latitude;
 
@@ -325,6 +329,14 @@ public class FarmInfo {
 
     public void setDirectionToSemenDropSite(String directionToSemenDropSite) {
         this.directionToSemenDropSite = directionToSemenDropSite;
+    }
+
+    public String getInstruction() {
+        return instruction;
+    }
+
+    public void setInstruction(String instruction) {
+        this.instruction = instruction;
     }
 
     public String getLatitude() {

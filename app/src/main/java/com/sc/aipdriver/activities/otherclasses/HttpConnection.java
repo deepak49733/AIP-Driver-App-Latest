@@ -18,22 +18,40 @@ public class HttpConnection {
         try {
             URL url = new URL(mapsApiDirectionsUrl);
             urlConnection = (HttpURLConnection) url.openConnection();
+            urlConnection.setRequestProperty("User-Agent", "Mozilla/5.0 (Linux; Android 10; Mobile)");
+            urlConnection.setRequestProperty("Accept", "application/json");
+            urlConnection.setConnectTimeout(15000);
+            urlConnection.setReadTimeout(15000);
             urlConnection.connect();
-            iStream = urlConnection.getInputStream();
-            BufferedReader br = new BufferedReader(new InputStreamReader(
-                    iStream));
-            StringBuffer sb = new StringBuffer();
-            String line = "";
-            while ((line = br.readLine()) != null) {
-                sb.append(line);
+
+            int responseCode = urlConnection.getResponseCode();
+            if (responseCode == HttpURLConnection.HTTP_OK) {
+                iStream = urlConnection.getInputStream();
+            } else {
+                iStream = urlConnection.getErrorStream();
             }
-            data = sb.toString();
-            br.close();
+
+            if (iStream != null) {
+                BufferedReader br = new BufferedReader(new InputStreamReader(iStream));
+                StringBuilder sb = new StringBuilder();
+                String line;
+                while ((line = br.readLine()) != null) {
+                    sb.append(line);
+                }
+                data = sb.toString();
+                br.close();
+            }
         } catch (Exception e) {
-            Log.d("Exception", e.toString());
+            Log.e("HttpConnection", "Error reading URL: " + e.getMessage());
         } finally {
-            iStream.close();
-            urlConnection.disconnect();
+            if (iStream != null) {
+                try {
+                    iStream.close();
+                } catch (Exception ignored) {}
+            }
+            if (urlConnection != null) {
+                urlConnection.disconnect();
+            }
         }
         return data;
     }

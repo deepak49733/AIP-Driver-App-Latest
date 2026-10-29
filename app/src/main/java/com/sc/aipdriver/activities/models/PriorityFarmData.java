@@ -107,6 +107,14 @@ public class PriorityFarmData {
     @Expose
     private String instruction;
 
+    @SerializedName("Latitude")
+    @Expose
+    private String latitude;
+
+    @SerializedName("Longitude")
+    @Expose
+    private String longitude;
+
     public String getIsINS() {
         return isINS;
     }
@@ -121,6 +129,22 @@ public class PriorityFarmData {
 
     public void setInstruction(String instruction) {
         this.instruction = instruction;
+    }
+
+    public String getLatitude() {
+        return latitude;
+    }
+
+    public void setLatitude(String latitude) {
+        this.latitude = latitude;
+    }
+
+    public String getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(String longitude) {
+        this.longitude = longitude;
     }
 
 

@@ -26,6 +26,7 @@ import com.sc.aipdriver.activities.dialogs.OrderDateDialogNew
 import com.sc.aipdriver.activities.ui.CalendarActivity
 import com.sc.aipdriver.activities.ui.FarmDetailActivity
 import com.sc.aipdriver.activities.ui.FarmListRoute
+import com.sc.aipdriver.activities.ui.FarmListRouteNew
 import com.sc.aipdriver.activities.ui.ImprovedFarmDetailActivity
 import com.sc.aipdriver.activities.ui.ImprovedFarmList
 import com.sc.aipdriver.activities.ui.LoginActivity
@@ -84,7 +85,7 @@ class AppController : Application(), Application.ActivityLifecycleCallbacks {
         if (activity == null) return false
 
         if (activity is SelectRouteNew ||
-            activity is SelectRoute ||
+            activity is FarmListRouteNew ||
             activity is MonthlyScheduleActivityNew ||
             activity is CalendarActivity
         ) {
@@ -282,6 +283,9 @@ class AppController : Application(), Application.ActivityLifecycleCallbacks {
                         Log.d("GlobalStatus", "Refreshing FarmListRoute")
                         activity.shouldUpdateRouteAfterRefresh = true
                         activity.getFarmsByRoute()
+                        callUpdateRouteApi()
+                    } else if (activity is FarmListRouteNew) {
+                        Log.d("GlobalStatus", "Refreshing FarmListRouteNew")
                         callUpdateRouteApi()
                     } else if (activity is ImprovedFarmList) {
                         Log.d("GlobalStatus", "Refreshing ImprovedFarmList")
