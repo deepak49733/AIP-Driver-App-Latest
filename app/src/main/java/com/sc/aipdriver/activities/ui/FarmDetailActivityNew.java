@@ -10,6 +10,9 @@ import android.widget.TextView;
 import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.request.RequestOptions;
 import com.squareup.picasso.Picasso;
 import com.sc.aipdriver.R;
 import com.sc.aipdriver.activities.interfaces.ApiClient;
@@ -42,6 +45,8 @@ public class FarmDetailActivityNew extends AppCompatActivity {
     private String farmId = "";
     private String farmName = "";
     private String fullInstructionsText = "";
+    private String userImageIntent = "";
+    private String dropImageIntent = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,6 +67,12 @@ public class FarmDetailActivityNew extends AppCompatActivity {
                 if (ins != null && !ins.trim().isEmpty() && !ins.equalsIgnoreCase("yes") && !ins.equalsIgnoreCase("no")) {
                     fullInstructionsText = ins.trim();
                 }
+            }
+            if (getIntent().hasExtra("UserImage")) {
+                userImageIntent = getIntent().getStringExtra("UserImage");
+            }
+            if (getIntent().hasExtra("SemenDropLocationImage")) {
+                dropImageIntent = getIntent().getStringExtra("SemenDropLocationImage");
             }
         }
 
@@ -97,6 +108,44 @@ public class FarmDetailActivityNew extends AppCompatActivity {
         llExpandInstructions.setOnClickListener(v -> showFullInstructionsDialog());
     }
 
+    private String getSanitizedImageUrl(String path) {
+        if (path == null || path.trim().isEmpty()) return "";
+        path = path.trim();
+        if (path.startsWith("http://") || path.startsWith("https://")) {
+            return path.replace(" ", "%20").replace("(", "%28").replace(")", "%29");
+        }
+        String baseUrl = ApiClient.BASE_URL;
+        if (baseUrl.endsWith("/") && path.startsWith("/")) {
+            path = path.substring(1);
+        }
+        path = path.replace(" ", "%20").replace("(", "%28").replace(")", "%29");
+        return baseUrl + path;
+    }
+
+    private void loadImage(String imagePath, ImageView targetImageView) {
+        if (isFinishing() || isDestroyed()) return;
+
+        String fullUrl = getSanitizedImageUrl(imagePath);
+        if (!fullUrl.isEmpty()) {
+            Log.d("FarmDetailActivityNew", "Loading sanitized image URL: " + fullUrl);
+            RequestOptions options = new RequestOptions()
+                    .diskCacheStrategy(DiskCacheStrategy.ALL)
+                    .placeholder(R.drawable.ic_launcher_)
+                    .error(R.drawable.ic_launcher_);
+
+            try {
+                Glide.with(getApplicationContext())
+                        .load(fullUrl)
+                        .apply(options)
+                        .into(targetImageView);
+            } catch (Exception e) {
+                Log.e("FarmDetailActivityNew", "Error loading image with Glide: " + e.getMessage());
+            }
+        } else {
+            targetImageView.setImageResource(R.drawable.ic_launcher_);
+        }
+    }
+
     private void populateInitialData() {
         if (farmName != null && !farmName.isEmpty()) {
             tvFarmName.setText(farmName);
@@ -109,6 +158,13 @@ public class FarmDetailActivityNew extends AppCompatActivity {
         } else {
             fullInstructionsText = "";
             tvInstructions.setText("");
+        }
+
+        if (userImageIntent != null && !userImageIntent.trim().isEmpty()) {
+            loadImage(userImageIntent, ivFarmImage);
+        }
+        if (dropImageIntent != null && !dropImageIntent.trim().isEmpty()) {
+            loadImage(dropImageIntent, ivDropLocationImage);
         }
     }
 
@@ -163,18 +219,12 @@ public class FarmDetailActivityNew extends AppCompatActivity {
             tvInstructions.setText("");
         }
 
-        if (info.getUserImage1() != null && !info.getUserImage1().trim().isEmpty()) {
-            String imageUrl = ApiClient.BASE_URL + info.getUserImage1();
-            Picasso.get().load(imageUrl).placeholder(R.drawable.ic_launcher_).error(R.drawable.ic_launcher_).into(ivFarmImage);
-        } else {
-            ivFarmImage.setImageResource(R.drawable.ic_launcher_);
-        }
+        String farmImg = (info.getUserImage1() != null && !info.getUserImage1().trim().isEmpty())
+                ? info.getUserImage1() : userImageIntent;
+        loadImage(farmImg, ivFarmImage);
 
-        if (info.getSemenDropLocationImg1() != null && !info.getSemenDropLocationImg1().trim().isEmpty()) {
-            String dropUrl = ApiClient.BASE_URL + info.getSemenDropLocationImg1();
-            Picasso.get().load(dropUrl).placeholder(R.drawable.ic_launcher_).error(R.drawable.ic_launcher_).into(ivDropLocationImage);
-        } else {
-            ivDropLocationImage.setImageResource(R.drawable.ic_launcher_);
-        }
+        String dropImg = (info.getSemenDropLocationImg1() != null && !info.getSemenDropLocationImg1().trim().isEmpty())
+                ? info.getSemenDropLocationImg1() : dropImageIntent;
+        loadImage(dropImg, ivDropLocationImage);
     }
 }

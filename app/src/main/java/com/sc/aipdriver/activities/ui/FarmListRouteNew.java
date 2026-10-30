@@ -25,6 +25,7 @@ import com.sc.aipdriver.activities.otherclasses.SharedprefrenceManager;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -198,7 +199,9 @@ public class FarmListRouteNew extends AppCompatActivity {
             public void onResponse(@NonNull Call<BaseResponse<List<PriorityFarmData>>> call, @NonNull Response<BaseResponse<List<PriorityFarmData>>> response) {
                 if (response.code() == 200 && response.body() != null && response.body().getData() != null && !response.body().getData().isEmpty()) {
                     farmDataList.clear();
-                    farmDataList.addAll(response.body().getData());
+                    List<PriorityFarmData> data = response.body().getData();
+                    sortFarmsByPriority(data);
+                    farmDataList.addAll(data);
                     adapter.notifyDataSetChanged();
                 } else {
                     fetchFarmsFallback();
@@ -229,7 +232,9 @@ public class FarmListRouteNew extends AppCompatActivity {
             public void onResponse(@NonNull Call<BaseResponse<List<PriorityFarmData>>> call, @NonNull Response<BaseResponse<List<PriorityFarmData>>> response) {
                 if (response.code() == 200 && response.body() != null && response.body().getData() != null && !response.body().getData().isEmpty()) {
                     farmDataList.clear();
-                    farmDataList.addAll(response.body().getData());
+                    List<PriorityFarmData> data = response.body().getData();
+                    sortFarmsByPriority(data);
+                    farmDataList.addAll(data);
                     adapter.notifyDataSetChanged();
                 } else {
                     showNoDataAvailable();
@@ -241,6 +246,15 @@ public class FarmListRouteNew extends AppCompatActivity {
                 Log.e("FarmListRouteNew", "Error fetching fallback farms: " + t.getMessage());
                 showNoDataAvailable();
             }
+        });
+    }
+
+    private void sortFarmsByPriority(List<PriorityFarmData> list) {
+        if (list == null || list.isEmpty()) return;
+        Collections.sort(list, (f1, f2) -> {
+            int p1 = (f1 != null && f1.getPriority() != null) ? f1.getPriority() : Integer.MAX_VALUE;
+            int p2 = (f2 != null && f2.getPriority() != null) ? f2.getPriority() : Integer.MAX_VALUE;
+            return Integer.compare(p1, p2);
         });
     }
 

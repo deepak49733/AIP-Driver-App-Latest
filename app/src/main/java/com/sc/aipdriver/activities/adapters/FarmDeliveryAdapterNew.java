@@ -67,6 +67,12 @@ public class FarmDeliveryAdapterNew extends RecyclerView.Adapter<FarmDeliveryAda
             if (farmData.getInstruction() != null) {
                 intent.putExtra("Instruction", farmData.getInstruction());
             }
+            if (farmData.getUserImage() != null) {
+                intent.putExtra("UserImage", farmData.getUserImage());
+            }
+            if (farmData.getSemenDropLocationImage() != null) {
+                intent.putExtra("SemenDropLocationImage", farmData.getSemenDropLocationImage());
+            }
             context.startActivity(intent);
         });
     }

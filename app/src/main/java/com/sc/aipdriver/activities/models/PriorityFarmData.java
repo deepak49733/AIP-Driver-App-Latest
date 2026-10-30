@@ -115,6 +115,14 @@ public class PriorityFarmData {
     @Expose
     private String longitude;
 
+    @SerializedName("UserImage")
+    @Expose
+    private String userImage;
+
+    @SerializedName("SemenDropLocationImage")
+    @Expose
+    private String semenDropLocationImage;
+
     public String getIsINS() {
         return isINS;
     }
@@ -145,6 +153,22 @@ public class PriorityFarmData {
 
     public void setLongitude(String longitude) {
         this.longitude = longitude;
+    }
+
+    public String getUserImage() {
+        return userImage;
+    }
+
+    public void setUserImage(String userImage) {
+        this.userImage = userImage;
+    }
+
+    public String getSemenDropLocationImage() {
+        return semenDropLocationImage;
+    }
+
+    public void setSemenDropLocationImage(String semenDropLocationImage) {
+        this.semenDropLocationImage = semenDropLocationImage;
     }
 
 
