@@ -22,9 +22,9 @@ android {
     defaultConfig {
         applicationId = "com.sc.aipdriver"
         minSdk = 24
-        targetSdk = 35
-        versionCode = 35
-        versionName = "1.0.35"
+        targetSdk = 36
+        versionCode = 37
+        versionName = "1.0.37"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
