@@ -22,6 +22,15 @@ public class RouteDriverScheduleItem {
     @SerializedName(value = "DriverName", alternate = {"Drivername", "driverName", "Driver", "driver"})
     private String driverName;
 
+    @SerializedName(value = "VehicleId", alternate = {"Vehicleid", "vehicleId"})
+    private int vehicleId;
+
+    @SerializedName(value = "VehicleName", alternate = {"Vehiclename", "vehicleName", "Vehicle", "vehicle"})
+    private String vehicleName;
+
+    @SerializedName(value = "VehicleImage", alternate = {"Vehicleimage", "vehicleImage", "UserImage", "userImage", "Image", "image"})
+    private String vehicleImage;
+
     public int getId() {
         return id;
     }
@@ -68,5 +77,29 @@ public class RouteDriverScheduleItem {
 
     public void setDriverName(String driverName) {
         this.driverName = driverName;
+    }
+
+    public int getVehicleId() {
+        return vehicleId;
+    }
+
+    public void setVehicleId(int vehicleId) {
+        this.vehicleId = vehicleId;
+    }
+
+    public String getVehicleName() {
+        return vehicleName;
+    }
+
+    public void setVehicleName(String vehicleName) {
+        this.vehicleName = vehicleName;
+    }
+
+    public String getVehicleImage() {
+        return vehicleImage;
+    }
+
+    public void setVehicleImage(String vehicleImage) {
+        this.vehicleImage = vehicleImage;
     }
 }

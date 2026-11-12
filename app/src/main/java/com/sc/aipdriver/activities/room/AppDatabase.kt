@@ -18,7 +18,7 @@ import com.sc.aipdriver.activities.models.PriorityFarmData
         EmailSyncEntity::class,
         ReceiptEntity::class
     ],
-    version = 15
+    version = 17
 )
 abstract class AppDatabase : RoomDatabase() {
 

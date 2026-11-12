@@ -74,15 +74,22 @@ public class CalendarAdapterNew extends RecyclerView.Adapter<CalendarAdapterNew.
 
                 String routeName = item.getRouteName() != null ? item.getRouteName().trim() : "";
                 String driverName = item.getDriverName() != null ? item.getDriverName().trim() : "";
+                String vehicleName = item.getVehicleName() != null ? item.getVehicleName().trim() : "";
 
-                String tag;
-                if (!routeName.isEmpty() && !driverName.isEmpty()) {
-                    tag = routeName + " - " + driverName;
-                } else if (!routeName.isEmpty()) {
-                    tag = routeName;
-                } else {
-                    tag = driverName;
+                StringBuilder sb = new StringBuilder();
+                if (!routeName.isEmpty()) {
+                    sb.append(routeName);
                 }
+                if (!driverName.isEmpty()) {
+                    if (sb.length() > 0) sb.append(" - ");
+                    sb.append(driverName);
+                }
+                if (!vehicleName.isEmpty()) {
+                    if (sb.length() > 0) sb.append(" - ");
+                    sb.append(vehicleName);
+                }
+
+                String tag = sb.toString();
 
                 if (tag.isEmpty()) continue;
 

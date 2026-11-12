@@ -234,6 +234,18 @@ public interface ApiInterface {
             @Header("Token") String token
     );
 
+    @GET("/api/GetSchedule")
+    Call<BaseResponse<Integer>> getSchedule(
+            @Query("driverId") String driverId,
+            @Header("Token") String token
+    );
+
+    @GET("/api/UpdateSchedule")
+    Call<CommonError> updateSchedule(
+            @Query("driverId") String driverId,
+            @Header("Token") String token
+    );
+
     @Multipart
     @POST("/api/EndFarmImage/{id}")
     Call<ResponseBody> uploadFarmEndImage(

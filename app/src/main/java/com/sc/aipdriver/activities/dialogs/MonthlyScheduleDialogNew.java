@@ -25,7 +25,9 @@ import androidx.fragment.app.DialogFragment;
 import com.sc.aipdriver.R;
 import com.sc.aipdriver.activities.ui.MonthlyScheduleActivityNew;
 
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Locale;
 
 public class MonthlyScheduleDialogNew extends DialogFragment {
 
@@ -34,9 +36,12 @@ public class MonthlyScheduleDialogNew extends DialogFragment {
     private Button btnOkcal;
     private Button btnCancel;
     private TextView tvBack;
+    private TextView tvCurrentDate;
     private LinearLayout rlCalRow;
     private ScrollView svContent;
     private RelativeLayout rlCal;
+
+    private final SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
 
     public static MonthlyScheduleDialogNew newInstance() {
         return new MonthlyScheduleDialogNew();
@@ -64,6 +69,7 @@ public class MonthlyScheduleDialogNew extends DialogFragment {
         btnOkcal = view.findViewById(R.id.btnOkcal);
         btnCancel = view.findViewById(R.id.btnCancel);
         tvBack = view.findViewById(R.id.tv_back);
+        tvCurrentDate = view.findViewById(R.id.tv_current_date);
         rlCalRow = view.findViewById(R.id.rl_cal_row);
         svContent = view.findViewById(R.id.sv_content);
         rlCal = view.findViewById(R.id.rlCalendar);
@@ -75,6 +81,10 @@ public class MonthlyScheduleDialogNew extends DialogFragment {
                 todayCal.get(Calendar.MONTH),
                 todayCal.get(Calendar.DAY_OF_MONTH)
         );
+
+        if (tvCurrentDate != null) {
+            tvCurrentDate.setText(dateFormat.format(todayCal.getTime()));
+        }
 
         // Header BACK button click -> dismiss dialog
         tvBack.setOnClickListener(v -> dismiss());
@@ -95,6 +105,12 @@ public class MonthlyScheduleDialogNew extends DialogFragment {
         btnOkcal.setOnClickListener(v -> {
             rlCal.setVisibility(GONE);
             svContent.setVisibility(VISIBLE);
+
+            Calendar selectedCal = Calendar.getInstance();
+            selectedCal.set(datePicker.getYear(), datePicker.getMonth(), datePicker.getDayOfMonth());
+            if (tvCurrentDate != null) {
+                tvCurrentDate.setText(dateFormat.format(selectedCal.getTime()));
+            }
         });
 
         // CONTINUE button click -> launch MonthlyScheduleActivityNew with selected year and month

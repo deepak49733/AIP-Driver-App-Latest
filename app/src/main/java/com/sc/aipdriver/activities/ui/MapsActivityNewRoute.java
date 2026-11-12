@@ -5,9 +5,11 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.graphics.RectF;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -45,6 +47,7 @@ import org.json.JSONObject;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -70,6 +73,7 @@ public class MapsActivityNewRoute extends AppCompatActivity implements OnMapRead
 
     private final List<LatLng> waypoints = new ArrayList<>();
     private final List<String> farmNames = new ArrayList<>();
+    private final List<Integer> farmPriorities = new ArrayList<>();
 
     private final int[] markerColors = new int[]{
             Color.parseColor("#E53935"), // Red
@@ -104,6 +108,9 @@ public class MapsActivityNewRoute extends AppCompatActivity implements OnMapRead
     }
 
     private void initViews() {
+        View rlHeader = findViewById(R.id.rl_header);
+        com.sc.aipdriver.activities.otherclasses.StatusBarUtils.applyStatusBarPadding(rlHeader);
+
         ivBack = findViewById(R.id.iv_back);
         tvTitle = findViewById(R.id.tv_title);
         tvHeading = findViewById(R.id.tv_direction_heading);
@@ -223,6 +230,7 @@ public class MapsActivityNewRoute extends AppCompatActivity implements OnMapRead
                 } else {
                     waypoints.clear();
                     farmNames.clear();
+                    farmPriorities.clear();
                     Toast.makeText(MapsActivityNewRoute.this, "No valid farm coordinates available", Toast.LENGTH_SHORT).show();
                     plotRouteOnMap();
                 }
@@ -233,8 +241,24 @@ public class MapsActivityNewRoute extends AppCompatActivity implements OnMapRead
                 Log.e("MapsActivityNewRoute", "Error fetching fallback: " + t.getMessage());
                 waypoints.clear();
                 farmNames.clear();
+                farmPriorities.clear();
                 Toast.makeText(MapsActivityNewRoute.this, "Failed to load route coordinates", Toast.LENGTH_SHORT).show();
                 plotRouteOnMap();
+            }
+        });
+    }
+
+    private void sortFarmsByPriority(List<PriorityFarmData> list) {
+        if (list == null || list.isEmpty()) return;
+        Collections.sort(list, (f1, f2) -> {
+            int p1 = (f1 != null && f1.getPriority() != null) ? f1.getPriority() : Integer.MAX_VALUE;
+            int p2 = (f2 != null && f2.getPriority() != null) ? f2.getPriority() : Integer.MAX_VALUE;
+            if (p1 != p2) {
+                return Integer.compare(p1, p2);
+            } else {
+                String name1 = (f1 != null && f1.getFarmName() != null) ? f1.getFarmName() : "";
+                String name2 = (f2 != null && f2.getFarmName() != null) ? f2.getFarmName() : "";
+                return name1.compareToIgnoreCase(name2);
             }
         });
     }
@@ -242,8 +266,11 @@ public class MapsActivityNewRoute extends AppCompatActivity implements OnMapRead
     private void processFarmData(List<PriorityFarmData> dataList) {
         waypoints.clear();
         farmNames.clear();
+        farmPriorities.clear();
 
         if (dataList != null && !dataList.isEmpty()) {
+            sortFarmsByPriority(dataList);
+
             int index = 1;
             for (PriorityFarmData farm : dataList) {
                 if (farm == null) continue;
@@ -252,6 +279,8 @@ public class MapsActivityNewRoute extends AppCompatActivity implements OnMapRead
                 if (name == null || name.trim().isEmpty()) {
                     name = "Farm " + index;
                 }
+
+                int priority = (farm.getPriority() != null) ? farm.getPriority() : index;
 
                 double lat = 0.0;
                 double lng = 0.0;
@@ -267,9 +296,10 @@ public class MapsActivityNewRoute extends AppCompatActivity implements OnMapRead
                 }
 
                 if (lat != 0.0 && lng != 0.0) {
-                    Log.d("MapsActivityNewRoute", "Real API Farm Waypoint [" + index + "]: " + name + " -> Lat: " + lat + ", Lng: " + lng);
+                    Log.d("MapsActivityNewRoute", "Real API Farm Waypoint [" + index + "]: " + name + " (Priority: " + priority + ") -> Lat: " + lat + ", Lng: " + lng);
                     waypoints.add(new LatLng(lat, lng));
                     farmNames.add(name);
+                    farmPriorities.add(priority);
                     index++;
                 }
             }
@@ -282,35 +312,75 @@ public class MapsActivityNewRoute extends AppCompatActivity implements OnMapRead
         plotRouteOnMap();
     }
 
-    private BitmapDescriptor getMarkerIconWithNumber(String numberStr, int circleColor) {
-        int width = 88;
-        int height = 88;
-        Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
-        Canvas canvas = new Canvas(bitmap);
+    private BitmapDescriptor getMarkerIconWithLabel(String seqStr, String farmName, int circleColor) {
+        String fullLabel = seqStr + " (" + farmName + ")";
 
-        Paint paintCircle = new Paint();
-        paintCircle.setColor(circleColor);
-        paintCircle.setAntiAlias(true);
-        canvas.drawCircle(width / 2f, height / 2f, width / 2f - 4, paintCircle);
-
-        Paint paintBorder = new Paint();
-        paintBorder.setColor(Color.WHITE);
-        paintBorder.setStyle(Paint.Style.STROKE);
-        paintBorder.setStrokeWidth(6);
-        paintBorder.setAntiAlias(true);
-        canvas.drawCircle(width / 2f, height / 2f, width / 2f - 4, paintBorder);
-
-        Paint paintText = new Paint();
-        paintText.setColor(Color.WHITE);
-        paintText.setTextSize(40);
-        paintText.setTypeface(Typeface.DEFAULT_BOLD);
-        paintText.setTextAlign(Paint.Align.CENTER);
-        paintText.setAntiAlias(true);
+        Paint textPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        textPaint.setColor(Color.parseColor("#111111"));
+        textPaint.setTextSize(26f);
+        textPaint.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.BOLD));
+        textPaint.setTextAlign(Paint.Align.CENTER);
 
         Rect textBounds = new Rect();
-        paintText.getTextBounds(numberStr, 0, numberStr.length(), textBounds);
-        float y = height / 2f + textBounds.height() / 2f - textBounds.bottom;
-        canvas.drawText(numberStr, width / 2f, y, paintText);
+        textPaint.getTextBounds(fullLabel, 0, fullLabel.length(), textBounds);
+
+        int textWidth = textBounds.width() + 24;
+        int textHeight = textBounds.height() + 16;
+
+        int pinRadius = 36;
+        int pinDiameter = pinRadius * 2;
+
+        int bitmapWidth = Math.max(pinDiameter + 16, textWidth + 16);
+        int bitmapHeight = pinDiameter + textHeight + 16;
+
+        Bitmap bitmap = Bitmap.createBitmap(bitmapWidth, bitmapHeight, Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bitmap);
+
+        float centerX = bitmapWidth / 2f;
+
+        // 1. Draw Pin Circle
+        Paint paintCircle = new Paint(Paint.ANTI_ALIAS_FLAG);
+        paintCircle.setColor(circleColor);
+        canvas.drawCircle(centerX, pinRadius + 4, pinRadius - 2, paintCircle);
+
+        Paint paintBorder = new Paint(Paint.ANTI_ALIAS_FLAG);
+        paintBorder.setColor(Color.WHITE);
+        paintBorder.setStyle(Paint.Style.STROKE);
+        paintBorder.setStrokeWidth(5f);
+        canvas.drawCircle(centerX, pinRadius + 4, pinRadius - 2, paintBorder);
+
+        // Sequence Letter/Number inside Pin Circle
+        Paint paintPinText = new Paint(Paint.ANTI_ALIAS_FLAG);
+        paintPinText.setColor(Color.WHITE);
+        paintPinText.setTextSize(32f);
+        paintPinText.setTypeface(Typeface.DEFAULT_BOLD);
+        paintPinText.setTextAlign(Paint.Align.CENTER);
+
+        Rect pinTextBounds = new Rect();
+        paintPinText.getTextBounds(seqStr, 0, seqStr.length(), pinTextBounds);
+        float pinTextY = (pinRadius + 4) + pinTextBounds.height() / 2f - pinTextBounds.bottom;
+        canvas.drawText(seqStr, centerX, pinTextY, paintPinText);
+
+        // 2. Draw Label Box below Pin
+        float labelTop = pinDiameter + 8f;
+        float labelLeft = centerX - textWidth / 2f;
+        float labelRight = centerX + textWidth / 2f;
+        float labelBottom = labelTop + textHeight;
+
+        Paint bgPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        bgPaint.setColor(Color.argb(245, 255, 255, 255));
+        RectF rectF = new RectF(labelLeft, labelTop, labelRight, labelBottom);
+        canvas.drawRoundRect(rectF, 8f, 8f, bgPaint);
+
+        Paint strokePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        strokePaint.setColor(Color.parseColor("#CCCCCC"));
+        strokePaint.setStyle(Paint.Style.STROKE);
+        strokePaint.setStrokeWidth(2f);
+        canvas.drawRoundRect(rectF, 8f, 8f, strokePaint);
+
+        // Draw Label Text inside Box
+        float textY = labelTop + textHeight / 2f + textBounds.height() / 2f - textBounds.bottom;
+        canvas.drawText(fullLabel, centerX, textY, textPaint);
 
         return BitmapDescriptorFactory.fromBitmap(bitmap);
     }
@@ -511,22 +581,20 @@ public class MapsActivityNewRoute extends AppCompatActivity implements OnMapRead
 
         LatLngBounds.Builder boundsBuilder = new LatLngBounds.Builder();
 
-        // Add custom number markers (1, 2, 3, 4...) with Info Callout Bubbles showing only Farm Name
+        // Add custom markers with permanent Priority & Farm Name Labels (e.g. 1 (Test North Farm 1), 10 (SPRINGDALE COLONY)...)
         for (int i = 0; i < waypoints.size(); i++) {
             LatLng point = waypoints.get(i);
             String name = farmNames.get(i);
-            String seqNumber = String.valueOf(i + 1);
+            int priorityVal = (i < farmPriorities.size() && farmPriorities.get(i) != null) 
+                    ? farmPriorities.get(i) : (i + 1);
+            String priorityStr = String.valueOf(priorityVal);
 
             int color = markerColors[i % markerColors.length];
 
-            Marker marker = mMap.addMarker(new MarkerOptions()
+            mMap.addMarker(new MarkerOptions()
                     .position(point)
                     .title(name)
-                    .icon(getMarkerIconWithNumber(seqNumber, color)));
-
-            if (marker != null) {
-                marker.showInfoWindow();
-            }
+                    .icon(getMarkerIconWithLabel(priorityStr, name, color)));
 
             boundsBuilder.include(point);
         }

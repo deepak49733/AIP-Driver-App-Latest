@@ -1,8 +1,15 @@
 package com.sc.aipdriver.activities.ui;
 
+import android.app.Dialog;
+import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -13,7 +20,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
-import com.squareup.picasso.Picasso;
 import com.sc.aipdriver.R;
 import com.sc.aipdriver.activities.interfaces.ApiClient;
 import com.sc.aipdriver.activities.interfaces.ApiInterface;
@@ -39,6 +45,8 @@ public class FarmDetailActivityNew extends AppCompatActivity {
     private ImageView ivFarmImage;
     private ImageView ivDropLocationImage;
 
+    private Dialog fullScreenDialog;
+
     private ApiInterface apiService;
     private SharedprefrenceManager sharedprefrenceManager;
 
@@ -47,6 +55,9 @@ public class FarmDetailActivityNew extends AppCompatActivity {
     private String fullInstructionsText = "";
     private String userImageIntent = "";
     private String dropImageIntent = "";
+
+    private String currentFarmImageUrl = "";
+    private String currentDropImageUrl = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,6 +94,9 @@ public class FarmDetailActivityNew extends AppCompatActivity {
     }
 
     private void initViews() {
+        View rlHeader = findViewById(R.id.rl_header);
+        com.sc.aipdriver.activities.otherclasses.StatusBarUtils.applyStatusBarPadding(rlHeader);
+
         tvBack = findViewById(R.id.tv_back);
         tvFarmName = findViewById(R.id.tv_farm_name);
         tvOfficePhone = findViewById(R.id.tv_office_phone);
@@ -106,6 +120,27 @@ public class FarmDetailActivityNew extends AppCompatActivity {
         });
 
         llExpandInstructions.setOnClickListener(v -> showFullInstructionsDialog());
+
+        ivFarmImage.setOnClickListener(v -> showFullScreenImage(currentFarmImageUrl));
+        ivDropLocationImage.setOnClickListener(v -> showFullScreenImage(currentDropImageUrl));
+
+        tvOfficePhone.setOnClickListener(v -> openDialer(tvOfficePhone.getText()));
+        tvEmergencyContact.setOnClickListener(v -> openDialer(tvEmergencyContact.getText()));
+        tvAlternateContact.setOnClickListener(v -> openDialer(tvAlternateContact.getText()));
+    }
+
+    private void openDialer(CharSequence phoneText) {
+        if (phoneText == null) return;
+        String phoneNumber = phoneText.toString().trim();
+        if (!phoneNumber.isEmpty()) {
+            try {
+                Intent intent = new Intent(Intent.ACTION_DIAL);
+                intent.setData(Uri.parse("tel:" + phoneNumber));
+                startActivity(intent);
+            } catch (Exception e) {
+                Log.e("FarmDetailActivityNew", "Error opening dialer: " + e.getMessage());
+            }
+        }
     }
 
     private String getSanitizedImageUrl(String path) {
@@ -146,6 +181,53 @@ public class FarmDetailActivityNew extends AppCompatActivity {
         }
     }
 
+    private void showFullScreenImage(String imagePath) {
+        if (imagePath == null || imagePath.trim().isEmpty()) return;
+
+        String fullUrl = getSanitizedImageUrl(imagePath);
+        if (fullUrl.isEmpty()) return;
+
+        if (fullScreenDialog != null && fullScreenDialog.isShowing()) {
+            fullScreenDialog.dismiss();
+        }
+
+        fullScreenDialog = new Dialog(this, android.R.style.Theme_Black_NoTitleBar_Fullscreen);
+        fullScreenDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+
+        View dialogView = getLayoutInflater().inflate(R.layout.dialog_full_screen_image, null);
+        fullScreenDialog.setContentView(dialogView);
+
+        if (fullScreenDialog.getWindow() != null) {
+            fullScreenDialog.getWindow().setLayout(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.MATCH_PARENT
+            );
+            fullScreenDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.BLACK));
+        }
+
+        ImageView ivFullImage = dialogView.findViewById(R.id.iv_full_image);
+        ImageView ivCloseDialog = dialogView.findViewById(R.id.iv_close_dialog);
+
+        RequestOptions options = new RequestOptions()
+                .diskCacheStrategy(DiskCacheStrategy.ALL)
+                .placeholder(R.drawable.ic_launcher_)
+                .error(R.drawable.ic_launcher_);
+
+        try {
+            Glide.with(getApplicationContext())
+                    .load(fullUrl)
+                    .apply(options)
+                    .into(ivFullImage);
+        } catch (Exception e) {
+            Log.e("FarmDetailActivityNew", "Error loading full screen image with Glide: " + e.getMessage());
+        }
+
+        ivCloseDialog.setOnClickListener(v -> fullScreenDialog.dismiss());
+        dialogView.setOnClickListener(v -> fullScreenDialog.dismiss());
+
+        fullScreenDialog.show();
+    }
+
     private void populateInitialData() {
         if (farmName != null && !farmName.isEmpty()) {
             tvFarmName.setText(farmName);
@@ -161,9 +243,11 @@ public class FarmDetailActivityNew extends AppCompatActivity {
         }
 
         if (userImageIntent != null && !userImageIntent.trim().isEmpty()) {
+            currentFarmImageUrl = userImageIntent;
             loadImage(userImageIntent, ivFarmImage);
         }
         if (dropImageIntent != null && !dropImageIntent.trim().isEmpty()) {
+            currentDropImageUrl = dropImageIntent;
             loadImage(dropImageIntent, ivDropLocationImage);
         }
     }
@@ -204,7 +288,12 @@ public class FarmDetailActivityNew extends AppCompatActivity {
         tvOfficePhone.setText(info.getOfficePhone() != null ? info.getOfficePhone() : "");
         tvEmergencyContact.setText(info.getFarmEmergencyNo() != null ? info.getFarmEmergencyNo() : "");
         tvAlternateContact.setText(info.getFarmEmergencyNo2nd() != null ? info.getFarmEmergencyNo2nd() : "");
-        tvAddress.setText(info.getAddress() != null ? info.getAddress() : "");
+
+        String formattedAddr = info.getFormattedDeliveryAddress();
+        if (formattedAddr == null || formattedAddr.trim().isEmpty()) {
+            formattedAddr = info.getAddress() != null ? info.getAddress() : "";
+        }
+        tvAddress.setText(formattedAddr);
 
         String instructions = info.getInstruction();
         if (instructions == null || instructions.trim().isEmpty() || instructions.equalsIgnoreCase("yes") || instructions.equalsIgnoreCase("no")) {
@@ -221,10 +310,24 @@ public class FarmDetailActivityNew extends AppCompatActivity {
 
         String farmImg = (info.getUserImage1() != null && !info.getUserImage1().trim().isEmpty())
                 ? info.getUserImage1() : userImageIntent;
+        if (farmImg != null && !farmImg.trim().isEmpty()) {
+            currentFarmImageUrl = farmImg;
+        }
         loadImage(farmImg, ivFarmImage);
 
         String dropImg = (info.getSemenDropLocationImg1() != null && !info.getSemenDropLocationImg1().trim().isEmpty())
                 ? info.getSemenDropLocationImg1() : dropImageIntent;
+        if (dropImg != null && !dropImg.trim().isEmpty()) {
+            currentDropImageUrl = dropImg;
+        }
         loadImage(dropImg, ivDropLocationImage);
+    }
+
+    @Override
+    protected void onDestroy() {
+        if (fullScreenDialog != null && fullScreenDialog.isShowing()) {
+            fullScreenDialog.dismiss();
+        }
+        super.onDestroy();
     }
 }

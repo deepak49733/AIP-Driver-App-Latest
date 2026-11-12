@@ -3,6 +3,7 @@ package com.sc.aipdriver.activities.ui;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -64,6 +65,20 @@ public class FarmListRouteNew extends AppCompatActivity {
             routeName = getIntent().getStringExtra("ROUTE");
             routeId = getIntent().getStringExtra("ROUTEID");
             rawDate = getIntent().getStringExtra("date");
+
+            if (routeId != null && !routeId.isEmpty()) {
+                try {
+                    sharedprefrenceManager.setRouteId(Integer.parseInt(routeId));
+                } catch (Exception e) {
+                    Log.e("FarmListRouteNew", "Error parsing routeId: " + e.getMessage());
+                }
+            }
+            if (routeName != null && !routeName.isEmpty()) {
+                sharedprefrenceManager.setRouteName(routeName);
+            }
+            if (rawDate != null && !rawDate.isEmpty()) {
+                sharedprefrenceManager.setDate(rawDate);
+            }
         }
 
         initViews();
@@ -85,6 +100,9 @@ public class FarmListRouteNew extends AppCompatActivity {
     }
 
     private void initViews() {
+        View rlHeader = findViewById(R.id.rl_header);
+        com.sc.aipdriver.activities.otherclasses.StatusBarUtils.applyStatusBarPadding(rlHeader);
+
         ivBack = findViewById(R.id.iv_back);
         tvRouteTitle = findViewById(R.id.tv_route_title);
         tvOrdersDate = findViewById(R.id.tv_orders_date);
@@ -184,7 +202,7 @@ public class FarmListRouteNew extends AppCompatActivity {
         startActivity(intent);
     }
 
-    private void fetchFarms() {
+    public void fetchFarms() {
         String apiDate = formatApiDate(rawDate);
         Call<BaseResponse<List<PriorityFarmData>>> call = apiService.getFarmINS(
                 routeName,

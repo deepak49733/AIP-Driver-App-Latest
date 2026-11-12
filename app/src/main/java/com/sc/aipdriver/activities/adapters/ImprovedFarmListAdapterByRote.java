@@ -56,9 +56,20 @@ public class ImprovedFarmListAdapterByRote extends RecyclerView.Adapter<Improved
         this.onItemClick = onItemClick;
         this.onClickImprovedFarm = onClickImprovedFarm;
         this.sharedprefrenceManager = sharedprefrenceManager;
-        // ✅ IMPORTANT: Sort by priority
-        Collections.sort(farmDataList, (a, b) ->
-                Integer.compare(a.getPriority(), b.getPriority()));
+        // ✅ IMPORTANT: Sort by priority (null-safe)
+        if (farmDataList != null) {
+            Collections.sort(farmDataList, (a, b) -> {
+                int p1 = (a != null && a.getPriority() != null) ? a.getPriority() : Integer.MAX_VALUE;
+                int p2 = (b != null && b.getPriority() != null) ? b.getPriority() : Integer.MAX_VALUE;
+                if (p1 != p2) {
+                    return Integer.compare(p1, p2);
+                } else {
+                    String name1 = (a != null && a.getFarmName() != null) ? a.getFarmName() : "";
+                    String name2 = (b != null && b.getFarmName() != null) ? b.getFarmName() : "";
+                    return name1.compareToIgnoreCase(name2);
+                }
+            });
+        }
     }
 
     @Override

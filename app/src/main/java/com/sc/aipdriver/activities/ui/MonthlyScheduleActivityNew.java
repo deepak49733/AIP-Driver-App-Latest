@@ -22,14 +22,19 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.request.RequestOptions;
 import com.sc.aipdriver.R;
 import com.sc.aipdriver.activities.adapters.CalendarAdapterNew;
 import com.sc.aipdriver.activities.interfaces.ApiClient;
 import com.sc.aipdriver.activities.interfaces.ApiInterface;
+import com.sc.aipdriver.activities.models.BaseResponse;
 import com.sc.aipdriver.activities.models.RouteDriverScheduleData;
 import com.sc.aipdriver.activities.models.RouteDriverScheduleItem;
 import com.sc.aipdriver.activities.models.RouteDriverScheduleRequest;
 import com.sc.aipdriver.activities.models.RouteDriverScheduleResponse;
+import com.sc.aipdriver.activities.models.VehicleListData;
 import com.sc.aipdriver.activities.otherclasses.SharedprefrenceManager;
 
 import java.text.SimpleDateFormat;
@@ -59,6 +64,8 @@ public class MonthlyScheduleActivityNew extends AppCompatActivity implements Cal
 
     private CalendarAdapterNew adapter;
     private SharedprefrenceManager sharedprefrenceManager;
+    private ApiInterface apiService;
+    private final Map<String, String> vehicleImageMap = new HashMap<>();
 
     private int selectedYear;
     private int selectedMonth; // 1-indexed (1 = Jan, 12 = Dec)
@@ -83,6 +90,9 @@ public class MonthlyScheduleActivityNew extends AppCompatActivity implements Cal
     }
 
     private void initViews() {
+        View rlHeader = findViewById(R.id.rl_header);
+        com.sc.aipdriver.activities.otherclasses.StatusBarUtils.applyStatusBarPadding(rlHeader);
+
         tvBack = findViewById(R.id.tv_back);
         tvLastUpdated = findViewById(R.id.tv_last_updated);
         tvMonthYear = findViewById(R.id.tv_month_year);
@@ -121,7 +131,9 @@ public class MonthlyScheduleActivityNew extends AppCompatActivity implements Cal
         });
     }
 
-    private void fetchScheduleAndRender() {
+    public void fetchScheduleAndRender() {
+        fetchVehicleList();
+
         Calendar displayCal = Calendar.getInstance();
         displayCal.set(Calendar.YEAR, selectedYear);
         displayCal.set(Calendar.MONTH, selectedMonth - 1);
@@ -186,6 +198,42 @@ public class MonthlyScheduleActivityNew extends AppCompatActivity implements Cal
                 Log.e(TAG, "Failed to load driver schedule", t);
                 Toast.makeText(MonthlyScheduleActivityNew.this, "Failed to load schedule", Toast.LENGTH_SHORT).show();
                 renderCalendar(null);
+            }
+        });
+    }
+
+    private void fetchVehicleList() {
+        if (apiService == null) {
+            apiService = ApiClient.getClient(this).create(ApiInterface.class);
+        }
+        String orgId = sharedprefrenceManager.getOrgID();
+        String driverId = sharedprefrenceManager.getDriverID();
+        String token = sharedprefrenceManager.getToken();
+
+        if (orgId == null || orgId.isEmpty() || driverId == null || driverId.isEmpty() || token == null) return;
+
+        apiService.getListVehicle(orgId, driverId, token).enqueue(new Callback<BaseResponse<List<VehicleListData>>>() {
+            @Override
+            public void onResponse(@NonNull Call<BaseResponse<List<VehicleListData>>> call, @NonNull Response<BaseResponse<List<VehicleListData>>> response) {
+                if (response.isSuccessful() && response.body() != null && response.body().getData() != null) {
+                    vehicleImageMap.clear();
+                    for (VehicleListData vehicle : response.body().getData()) {
+                        if (vehicle == null) continue;
+                        String vName = vehicle.getVehicleName();
+                        String vImg = vehicle.getUserImage();
+                        if (vImg == null || vImg.trim().isEmpty()) {
+                            vImg = vehicle.getVehicleImage();
+                        }
+                        if (vName != null && !vName.trim().isEmpty() && vImg != null && !vImg.trim().isEmpty()) {
+                            vehicleImageMap.put(vName.trim().toLowerCase(), vImg.trim());
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<BaseResponse<List<VehicleListData>>> call, @NonNull Throwable t) {
+                Log.e(TAG, "Failed to fetch vehicle list for images: " + t.getMessage());
             }
         });
     }
@@ -290,14 +338,47 @@ public class MonthlyScheduleActivityNew extends AppCompatActivity implements Cal
             TextView tvItemBadge = itemView.findViewById(R.id.tv_item_badge);
             TextView tvRouteName = itemView.findViewById(R.id.tv_detail_route_name);
             TextView tvDriverName = itemView.findViewById(R.id.tv_detail_driver_name);
+            TextView tvVehicleName = itemView.findViewById(R.id.tv_detail_vehicle_name);
             TextView tvScheduleDate = itemView.findViewById(R.id.tv_detail_schedule_date);
+            ImageView ivVehicleImage = itemView.findViewById(R.id.iv_vehicle_image);
 
             String badgeText = "Route #" + (i + 1) + ": " + (item.getRouteName() != null ? item.getRouteName() : "");
             tvItemBadge.setText(badgeText);
 
             tvRouteName.setText(item.getRouteName() != null && !item.getRouteName().isEmpty() ? item.getRouteName() : "N/A");
             tvDriverName.setText(item.getDriverName() != null && !item.getDriverName().isEmpty() ? item.getDriverName() : "N/A");
+            tvVehicleName.setText(item.getVehicleName() != null && !item.getVehicleName().isEmpty() ? item.getVehicleName() : "N/A");
             tvScheduleDate.setText(item.getScheduleDate() != null && !item.getScheduleDate().isEmpty() ? item.getScheduleDate() : "N/A");
+
+            String vehicleImg = item.getVehicleImage();
+            if (vehicleImg == null || vehicleImg.trim().isEmpty()) {
+                String vName = item.getVehicleName();
+                if (vName != null && !vName.trim().isEmpty()) {
+                    vehicleImg = vehicleImageMap.get(vName.trim().toLowerCase());
+                }
+            }
+            String fullImgUrl = getSanitizedImageUrl(vehicleImg);
+
+            if (!fullImgUrl.isEmpty()) {
+                RequestOptions options = new RequestOptions()
+                        .diskCacheStrategy(DiskCacheStrategy.ALL)
+                        .placeholder(R.drawable.ic_launcher_)
+                        .error(R.drawable.ic_launcher_);
+
+                try {
+                    Glide.with(getApplicationContext())
+                            .load(fullImgUrl)
+                            .apply(options)
+                            .into(ivVehicleImage);
+                } catch (Exception e) {
+                    Log.e(TAG, "Error loading vehicle image: " + e.getMessage());
+                }
+
+                ivVehicleImage.setOnClickListener(v -> showFullScreenImage(fullImgUrl));
+            } else {
+                ivVehicleImage.setImageResource(R.drawable.ic_launcher_);
+                ivVehicleImage.setOnClickListener(null);
+            }
 
             llItemsContainer.addView(itemView);
         }
@@ -308,5 +389,76 @@ public class MonthlyScheduleActivityNew extends AppCompatActivity implements Cal
         btnClose.setOnClickListener(v -> dialog.dismiss());
 
         dialog.show();
+    }
+
+    private Dialog fullScreenDialog;
+
+    private String getSanitizedImageUrl(String path) {
+        if (path == null || path.trim().isEmpty()) return "";
+        path = path.trim();
+        if (path.startsWith("http://") || path.startsWith("https://")) {
+            return path.replace(" ", "%20").replace("(", "%28").replace(")", "%29");
+        }
+        String baseUrl = ApiClient.BASE_URL;
+        if (baseUrl.endsWith("/") && path.startsWith("/")) {
+            path = path.substring(1);
+        }
+        path = path.replace(" ", "%20").replace("(", "%28").replace(")", "%29");
+        return baseUrl + path;
+    }
+
+    private void showFullScreenImage(String imagePath) {
+        if (imagePath == null || imagePath.trim().isEmpty()) return;
+
+        String fullUrl = getSanitizedImageUrl(imagePath);
+        if (fullUrl.isEmpty()) return;
+
+        if (fullScreenDialog != null && fullScreenDialog.isShowing()) {
+            fullScreenDialog.dismiss();
+        }
+
+        fullScreenDialog = new Dialog(this, android.R.style.Theme_Black_NoTitleBar_Fullscreen);
+        fullScreenDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+
+        View dialogView = getLayoutInflater().inflate(R.layout.dialog_full_screen_image, null);
+        fullScreenDialog.setContentView(dialogView);
+
+        if (fullScreenDialog.getWindow() != null) {
+            fullScreenDialog.getWindow().setLayout(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.MATCH_PARENT
+            );
+            fullScreenDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.BLACK));
+        }
+
+        ImageView ivFullImage = dialogView.findViewById(R.id.iv_full_image);
+        ImageView ivCloseDialog = dialogView.findViewById(R.id.iv_close_dialog);
+
+        RequestOptions options = new RequestOptions()
+                .diskCacheStrategy(DiskCacheStrategy.ALL)
+                .placeholder(R.drawable.ic_launcher_)
+                .error(R.drawable.ic_launcher_);
+
+        try {
+            Glide.with(getApplicationContext())
+                    .load(fullUrl)
+                    .apply(options)
+                    .into(ivFullImage);
+        } catch (Exception e) {
+            Log.e(TAG, "Error loading full screen image with Glide: " + e.getMessage());
+        }
+
+        ivCloseDialog.setOnClickListener(v -> fullScreenDialog.dismiss());
+        dialogView.setOnClickListener(v -> fullScreenDialog.dismiss());
+
+        fullScreenDialog.show();
+    }
+
+    @Override
+    protected void onDestroy() {
+        if (fullScreenDialog != null && fullScreenDialog.isShowing()) {
+            fullScreenDialog.dismiss();
+        }
+        super.onDestroy();
     }
 }

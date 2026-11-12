@@ -128,8 +128,9 @@ public class SelectRouteNew extends AppCompatActivity implements OnClickRoute {
             intent.putExtra("SEQUENCE", "Start");
             intent.putExtra("isResumed", false);
             intent.putExtra("date", selectedDate);
-            sharedprefrenceManager.setDate(formatToMMDDYYYY(selectedDate));
+            sharedprefrenceManager.setRouteId(routeListData.getId());
             sharedprefrenceManager.setRouteName(routeName);
+            sharedprefrenceManager.setDate(formatToMMDDYYYY(selectedDate));
             startActivity(intent);
         });
         dialog.show(getSupportFragmentManager(), "OrderDateDialogNew");

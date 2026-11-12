@@ -69,6 +69,18 @@ public class ImprovedPriorityFarmData {
     @Expose
     private String DelAddress;
 
+    @SerializedName("DelCity")
+    @Expose
+    private String DelCity;
+
+    @SerializedName("DelState")
+    @Expose
+    private String DelState;
+
+    @SerializedName(value = "DelZipcode", alternate = {"DelZipCode"})
+    @Expose
+    private String DelZipcode;
+
     @SerializedName("UserImage")
     @Expose
     private String userImage1;
@@ -135,6 +147,53 @@ public class ImprovedPriorityFarmData {
 
     public void setDelAddress(String delAddress) {
         DelAddress = delAddress;
+    }
+
+    public String getDelCity() {
+        return DelCity;
+    }
+
+    public void setDelCity(String delCity) {
+        DelCity = delCity;
+    }
+
+    public String getDelState() {
+        return DelState;
+    }
+
+    public void setDelState(String delState) {
+        DelState = delState;
+    }
+
+    public String getDelZipcode() {
+        return DelZipcode;
+    }
+
+    public void setDelZipcode(String delZipcode) {
+        DelZipcode = delZipcode;
+    }
+
+    public String getFormattedDeliveryAddress() {
+        StringBuilder sb = new StringBuilder();
+        String addr = DelAddress != null ? DelAddress.trim() : "";
+        String cty = DelCity != null ? DelCity.trim() : "";
+        String st = DelState != null ? DelState.trim() : "";
+        String zip = DelZipcode != null ? DelZipcode.trim() : "";
+
+        if (!addr.isEmpty()) sb.append(addr);
+        if (!cty.isEmpty()) {
+            if (sb.length() > 0) sb.append(", ");
+            sb.append(cty);
+        }
+        if (!st.isEmpty()) {
+            if (sb.length() > 0) sb.append(", ");
+            sb.append(st);
+        }
+        if (!zip.isEmpty()) {
+            if (sb.length() > 0) sb.append(" ");
+            sb.append(zip);
+        }
+        return sb.toString();
     }
 
     public String getFarmEmergencyNo_2nd() {
