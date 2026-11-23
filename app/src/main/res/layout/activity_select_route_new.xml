@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/root_new_route"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F8F9FA"
+    android:paddingTop="20dp"
+    tools:context=".activities.ui.SelectRouteNew">
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@+id/btn_back_route"
+        android:layout_marginBottom="16dp" />
+
+    <!-- Bottom << BACK Button as requested in screenshot -->
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/btn_back_route"
+        android:layout_width="150dp"
+        android:layout_height="48dp"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="24dp"
+        android:background="@drawable/bg_orange_button_selector"
+        android:elevation="2dp"
+        android:text="@string/back_btn_arrow"
+        android:textAllCaps="true"
+        android:textColor="@color/white"
+        android:textSize="16sp"
+        android:textStyle="bold" />
+
+</RelativeLayout>

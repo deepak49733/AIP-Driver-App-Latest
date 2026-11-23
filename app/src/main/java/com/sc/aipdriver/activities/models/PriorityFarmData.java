@@ -99,6 +99,78 @@ public class PriorityFarmData {
     @Expose
     private Integer isPhotoUploaded = 0;
 
+    @SerializedName("isINS")
+    @Expose
+    private String isINS;
+
+    @SerializedName("Instruction")
+    @Expose
+    private String instruction;
+
+    @SerializedName("Latitude")
+    @Expose
+    private String latitude;
+
+    @SerializedName("Longitude")
+    @Expose
+    private String longitude;
+
+    @SerializedName("UserImage")
+    @Expose
+    private String userImage;
+
+    @SerializedName("SemenDropLocationImage")
+    @Expose
+    private String semenDropLocationImage;
+
+    public String getIsINS() {
+        return isINS;
+    }
+
+    public void setIsINS(String isINS) {
+        this.isINS = isINS;
+    }
+
+    public String getInstruction() {
+        return instruction;
+    }
+
+    public void setInstruction(String instruction) {
+        this.instruction = instruction;
+    }
+
+    public String getLatitude() {
+        return latitude;
+    }
+
+    public void setLatitude(String latitude) {
+        this.latitude = latitude;
+    }
+
+    public String getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(String longitude) {
+        this.longitude = longitude;
+    }
+
+    public String getUserImage() {
+        return userImage;
+    }
+
+    public void setUserImage(String userImage) {
+        this.userImage = userImage;
+    }
+
+    public String getSemenDropLocationImage() {
+        return semenDropLocationImage;
+    }
+
+    public void setSemenDropLocationImage(String semenDropLocationImage) {
+        this.semenDropLocationImage = semenDropLocationImage;
+    }
+
 
     // getters & setters
 

@@ -20,11 +20,19 @@ import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentActivity
 import com.sc.aipdriver.activities.dialogs.FarmDetailBottomSheet
 import com.sc.aipdriver.activities.dialogs.FarmDetailSheet
+import com.sc.aipdriver.activities.dialogs.DatePickerFullScreenDialog
+import com.sc.aipdriver.activities.dialogs.MonthlyScheduleDialogNew
+import com.sc.aipdriver.activities.dialogs.OrderDateDialogNew
+import com.sc.aipdriver.activities.ui.CalendarActivity
 import com.sc.aipdriver.activities.ui.FarmDetailActivity
 import com.sc.aipdriver.activities.ui.FarmListRoute
+import com.sc.aipdriver.activities.ui.FarmListRouteNew
 import com.sc.aipdriver.activities.ui.ImprovedFarmDetailActivity
 import com.sc.aipdriver.activities.ui.ImprovedFarmList
 import com.sc.aipdriver.activities.ui.LoginActivity
+import com.sc.aipdriver.activities.ui.MonthlyScheduleActivityNew
+import com.sc.aipdriver.activities.ui.SelectRoute
+import com.sc.aipdriver.activities.ui.SelectRouteNew
 import com.sc.aipdriver.activities.fragments.SelectCar
 import com.sc.aipdriver.activities.worker.SyncScheduler
 import retrofit2.Call
@@ -73,12 +81,22 @@ class AppController : Application(), Application.ActivityLifecycleCallbacks {
         handler?.post(statusCheckRunnable!!)
     }
 
+    private fun isRoutePlanningOrScheduleActive(activity: Activity?): Boolean {
+        if (activity == null) return false
+
+        if (activity is CalendarActivity) {
+            return true
+        }
+
+        return false
+    }
+
     private fun checkGlobalRouteStatus() {
         val activity = currentActivity
-        Log.d("GlobalStatus", "checkGlobalRouteStatus: currentActivity = ${activity?.javaClass?.simpleName}, isPopupShowing = $isPopupShowing")
+        Log.d("GlobalStatus", "checkGlobalRouteStatus: currentActivity = ${activity?.javaClass?.simpleName}, isPopupShowing = $isPopupShowing, isSchedulePopupShowing = $isSchedulePopupShowing")
 
-        if (activity == null || activity is LoginActivity || isPopupShowing) {
-            Log.d("GlobalStatus", "Check skipped: activity null, LoginActivity, or popup showing")
+        if (activity == null || activity is LoginActivity) {
+            Log.d("GlobalStatus", "Check skipped: activity null or LoginActivity")
             return
         }
         if (!isInternetAvailable(this)) {
@@ -86,11 +104,22 @@ class AppController : Application(), Application.ActivityLifecycleCallbacks {
             return
         }
 
-        val token = sharedprefrenceManager?.token
-        val driverId = sharedprefrenceManager?.driverID
+        val token = sharedprefrenceManager?.token ?: ""
+        val driverId = sharedprefrenceManager?.driverID ?: ""
 
-        if (token.isNullOrEmpty() || token == "0" || driverId.isNullOrEmpty() || driverId == "0") {
-            Log.d("GlobalStatus", "Check skipped: Missing required token or driverId")
+        if (driverId.isEmpty() || driverId == "0") {
+            Log.d("GlobalStatus", "Check skipped: Missing required driverId")
+            return
+        }
+
+        // 1. Always check Schedule Update every 5 seconds for driver schedule updates
+        checkScheduleUpdate(token)
+
+        // 2. Always check Route Update every 5 seconds for active route
+        checkRouteUpdate(token)
+
+        if (isPopupShowing) {
+            Log.d("GlobalStatus", "Permission Check skipped: popup currently showing")
             return
         }
 
@@ -102,9 +131,13 @@ class AppController : Application(), Application.ActivityLifecycleCallbacks {
                     if (response.isSuccessful && response.body()?.data != null) {
                         val pData = response.body()!!.data
 
-                        // Update SharedPrefs with latest info
-                        sharedprefrenceManager?.setRouteId(pData.routeId)
-                        sharedprefrenceManager?.setParentId(pData.parentId)
+                        // Update SharedPrefs with latest info ONLY if pData.routeId is non-zero
+                        if (pData.routeId != 0) {
+                            sharedprefrenceManager?.setRouteId(pData.routeId)
+                        }
+                        if (pData.parentId != null && pData.parentId != 0) {
+                            sharedprefrenceManager?.setParentId(pData.parentId)
+                        }
 
                         val pRideId = pData.getRideId()
                         val pFarmId = pData.getFarmId()
@@ -136,9 +169,6 @@ class AppController : Application(), Application.ActivityLifecycleCallbacks {
 
                         Log.d("GlobalStatus", "Permission received: routeId=${pData.routeId}, date=$rawDate")
 
-                        // Step 2: Call getRoute with updated info
-                        checkRouteUpdate(token)
-
                     } else {
                         Log.e("GlobalStatus", "showPermission API Error: ${response.code()}")
                     }
@@ -149,25 +179,24 @@ class AppController : Application(), Application.ActivityLifecycleCallbacks {
                 }
             })
     }
-    private val safeRouteId get() = sharedprefrenceManager?.getRouteId()
-    private val safeRawDate get() = sharedprefrenceManager?.getDate()
-    private val safeDriverId get() = sharedprefrenceManager?.getDriverID()
-    private val safeToken get() = sharedprefrenceManager?.getToken()
     private fun callUpdateRouteApi() {
-        Log.d("UpdateRoute", "Route update API call")
+        val routeId = sharedprefrenceManager?.routeId ?: "0"
+        val driverId = sharedprefrenceManager?.driverID ?: "0"
+        val token = sharedprefrenceManager?.token ?: ""
+        val rawDate = sharedprefrenceManager?.date ?: ""
+        val formattedDate = FarmListRoute.formatToMMDDYYYY(rawDate)
 
+        Log.d("UpdateRoute", "Route update API call with routeId=$routeId, date=$formattedDate, driverId=$driverId")
 
-        if (safeRouteId == null || safeDriverId == null || safeToken == null) return
+        if (routeId.isEmpty() || routeId == "0" || driverId.isEmpty() || driverId == "0" || token.isEmpty()) return
 
-        val formattedDate = FarmListRoute.formatToMMDDYYYY(safeRawDate ?: "")
-
-        apiService!!.updateRoute(safeRouteId!!, internalOrderDate, safeDriverId!!, safeToken!!)
-            .enqueue(object : Callback<CommonError?> {
+        apiService?.updateRoute(routeId, formattedDate, driverId, token)
+            ?.enqueue(object : Callback<CommonError?> {
                 override fun onResponse(
                     call: Call<CommonError?>,
                     response: Response<CommonError?>
                 ) {
-                    if (response.isSuccessful()) {
+                    if (response.isSuccessful) {
                         Log.d("UpdateRoute", "Route update API success")
                     } else {
                         Log.e("UpdateRoute", "Route update API error: " + response.code())
@@ -182,10 +211,18 @@ class AppController : Application(), Application.ActivityLifecycleCallbacks {
 
     private fun checkRouteUpdate(token: String) {
         val driverId = sharedprefrenceManager?.driverID ?: "0"
+        val routeId = sharedprefrenceManager?.routeId ?: "0"
+        val rawDate = sharedprefrenceManager?.date ?: ""
+        val formattedDate = FarmListRoute.formatToMMDDYYYY(rawDate)
 
-        Log.d("GlobalStatus", "Step 2: Calling getRoute with routeId=$internalRouteId")
+        Log.d("GlobalStatus", "Step 2: Calling getRoute with routeId=$routeId, date=$formattedDate, driverId=$driverId")
 
-        apiService?.getRoute(internalRouteId, internalOrderDate, driverId, token)
+        if (routeId.isEmpty() || routeId == "0") {
+            Log.d("GlobalStatus", "getRoute skipped: invalid routeId=$routeId")
+            return
+        }
+
+        apiService?.getRoute(routeId, formattedDate, driverId, token)
             ?.enqueue(object : Callback<BaseResponse<Int>> {
                 override fun onResponse(call: Call<BaseResponse<Int>>, response: Response<BaseResponse<Int>>) {
                     if (response.isSuccessful && response.body() != null) {
@@ -194,6 +231,8 @@ class AppController : Application(), Application.ActivityLifecycleCallbacks {
                         if (data == 1) {
                             showGlobalPopup()
                         }
+                    } else {
+                        Log.e("GlobalStatus", "getRoute API error: ${response.code()}")
                     }
                 }
 
@@ -203,9 +242,97 @@ class AppController : Application(), Application.ActivityLifecycleCallbacks {
             })
     }
 
+    private var isSchedulePopupShowing = false
+
+    private fun callUpdateScheduleApi() {
+        val driverId = sharedprefrenceManager?.driverID ?: "0"
+        val token = sharedprefrenceManager?.token ?: ""
+
+        Log.d("UpdateSchedule", "UpdateSchedule API call with driverId=$driverId")
+
+        if (driverId.isEmpty() || driverId == "0" || token.isEmpty()) return
+
+        apiService?.updateSchedule(driverId, token)
+            ?.enqueue(object : Callback<CommonError?> {
+                override fun onResponse(
+                    call: Call<CommonError?>,
+                    response: Response<CommonError?>
+                ) {
+                    if (response.isSuccessful) {
+                        Log.d("UpdateSchedule", "UpdateSchedule API success")
+                    } else {
+                        Log.e("UpdateSchedule", "UpdateSchedule API error: ${response.code()}")
+                    }
+                }
+
+                override fun onFailure(call: Call<CommonError?>, t: Throwable) {
+                    Log.e("UpdateSchedule", "UpdateSchedule API failure: ${t.message}")
+                }
+            })
+    }
+
+    private fun checkScheduleUpdate(token: String) {
+        val driverId = sharedprefrenceManager?.driverID ?: "0"
+
+        if (driverId.isEmpty() || driverId == "0") {
+            Log.d("GlobalStatus", "getSchedule skipped: invalid driverId=$driverId")
+            return
+        }
+
+        Log.d("GlobalStatus", "Calling getSchedule for driverId=$driverId")
+
+        apiService?.getSchedule(driverId, token)
+            ?.enqueue(object : Callback<BaseResponse<Int>> {
+                override fun onResponse(call: Call<BaseResponse<Int>>, response: Response<BaseResponse<Int>>) {
+                    if (response.isSuccessful && response.body() != null) {
+                        val data = response.body()?.data
+                        Log.d("GlobalStatus", "getSchedule Data: $data")
+                        if (data == 1) {
+                            showScheduleUpdatePopup()
+                        }
+                    } else {
+                        Log.e("GlobalStatus", "getSchedule API error: ${response.code()}")
+                    }
+                }
+
+                override fun onFailure(call: Call<BaseResponse<Int>>, t: Throwable) {
+                    Log.e("GlobalStatus", "getSchedule failure: ${t.message}")
+                }
+            })
+    }
+
+    private fun showScheduleUpdatePopup() {
+        val activity = currentActivity
+        if (activity == null || activity.isFinishing || activity.isDestroyed || isSchedulePopupShowing) return
+
+        // Only show Schedule Update popup if the user is currently on MonthlyScheduleActivityNew
+        if (activity !is MonthlyScheduleActivityNew) {
+            Log.d("GlobalStatus", "showScheduleUpdatePopup skipped: activity is not MonthlyScheduleActivityNew (current: ${activity.javaClass.simpleName})")
+            return
+        }
+
+        isSchedulePopupShowing = true
+        Log.d("GlobalStatus", "Displaying Schedule Update popup on ${activity.javaClass.simpleName}")
+        activity.runOnUiThread {
+            SweetAlertDialog(activity, SweetAlertDialog.WARNING_TYPE)
+                .setTitleText("Schedule Update")
+                .setContentText("Your schedule has been updated. Please check the schedule.")
+                .setConfirmText("OK")
+                .setConfirmClickListener { sDialog ->
+                    isSchedulePopupShowing = false
+                    sDialog.dismissWithAnimation()
+
+                    callUpdateScheduleApi()
+
+                    activity.fetchScheduleAndRender()
+                }
+                .show()
+        }
+    }
+
     private fun showGlobalPopup() {
         val activity = currentActivity
-        if (activity == null || activity.isFinishing || activity.isDestroyed || isPopupShowing) return
+        if (activity == null || activity.isFinishing || activity.isDestroyed || isPopupShowing || isRoutePlanningOrScheduleActive(activity)) return
 
         isPopupShowing = true
         Log.d("GlobalStatus", "Displaying popup on ${activity.javaClass.simpleName}")
@@ -243,6 +370,10 @@ class AppController : Application(), Application.ActivityLifecycleCallbacks {
                         Log.d("GlobalStatus", "Refreshing FarmListRoute")
                         activity.shouldUpdateRouteAfterRefresh = true
                         activity.getFarmsByRoute()
+                        callUpdateRouteApi()
+                    } else if (activity is FarmListRouteNew) {
+                        Log.d("GlobalStatus", "Refreshing FarmListRouteNew")
+                        activity.fetchFarms()
                         callUpdateRouteApi()
                     } else if (activity is ImprovedFarmList) {
                         Log.d("GlobalStatus", "Refreshing ImprovedFarmList")

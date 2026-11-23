@@ -2171,6 +2171,8 @@ class ImprovedFarmList : AppCompatActivity(), OnImprovedItemClick, OnClickImprov
                             }
                         }
 
+                        sortFarmsByPriority(farms)
+
                         farmlist.clear()
                         farmlist.addAll(farms)
 
@@ -2230,8 +2232,10 @@ class ImprovedFarmList : AppCompatActivity(), OnImprovedItemClick, OnClickImprov
             }
 
             val offlineFarms =
-                db.improvedPriorityFarmDao().getFarmsByDate(dateToUse)
+                db.improvedPriorityFarmDao().getFarmsByDate(dateToUse) as MutableList<ImprovedPriorityFarmData>
                 
+            sortFarmsByPriority(offlineFarms)
+
             // RCA Fix: Ensure mapping is done even when loading from DB
             val currentFid = sharedprefrenceManager?.getFID()?.toIntOrNull() ?: 0
             if (isRideActive && currentFid != 0) {
@@ -2259,6 +2263,21 @@ class ImprovedFarmList : AppCompatActivity(), OnImprovedItemClick, OnClickImprov
                 }
             })
         })
+    }
+
+    private fun sortFarmsByPriority(list: MutableList<ImprovedPriorityFarmData>?) {
+        if (list.isNullOrEmpty()) return
+        list.sortWith { f1, f2 ->
+            val p1 = f1?.priority ?: Int.MAX_VALUE
+            val p2 = f2?.priority ?: Int.MAX_VALUE
+            if (p1 != p2) {
+                p1.compareTo(p2)
+            } else {
+                val name1 = f1?.farmName ?: ""
+                val name2 = f2?.farmName ?: ""
+                name1.compareTo(name2, ignoreCase = true)
+            }
+        }
     }
 
     private fun callUpdateRouteApi() {

@@ -81,10 +81,11 @@ class FarmDetailBottomSheet(
             emergencyMobile.text = it.farmEmergencyNo
             emergencyAlternateMobile.text = it.farmEmergencyNo2nd
             farmAddress.text = "${it.address}, ${it.city}, ${it.state} ${it.zipCode}"
-            instruction.text = it.callAheadInstructions
+            instruction.text = if (!it.instruction.isNullOrBlank()) it.instruction else it.callAheadInstructions
 
             val requestOptions = RequestOptions()
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
+                .placeholder(R.drawable.ic_launcher_)
                 .error(R.drawable.ic_launcher_)
 
             Glide.with(requireContext())
@@ -134,6 +135,7 @@ class FarmDetailBottomSheet(
         clLargeView.visibility=VISIBLE
         val requestOptions = RequestOptions()
             .diskCacheStrategy(DiskCacheStrategy.ALL)
+            .placeholder(R.drawable.ic_launcher_)
             .error(R.drawable.ic_launcher_)
         Glide.with(requireContext())
             .load(userImage1)
@@ -173,6 +175,7 @@ class FarmDetailBottomSheet(
 
                     val requestOptions = RequestOptions()
                         .diskCacheStrategy(DiskCacheStrategy.ALL)
+                        .placeholder(R.drawable.ic_launcher_)
                         .error(R.drawable.ic_launcher_)
 
                     if (ivFarm != null) {

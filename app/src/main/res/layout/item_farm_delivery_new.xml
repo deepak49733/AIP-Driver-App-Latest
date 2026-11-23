@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginStart="30dp"
+    android:layout_marginTop="6dp"
+    android:layout_marginEnd="30dp"
+    android:layout_marginBottom="6dp">
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/btn_farm_delivery_details"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:background="@drawable/bg_orange_button_selector"
+        android:elevation="2dp"
+        android:gravity="center"
+        android:paddingStart="12dp"
+        android:paddingEnd="36dp"
+        android:text="M7 Delivery Details"
+        android:textAllCaps="false"
+        android:textColor="@color/white"
+        android:textSize="17sp"
+        android:textStyle="normal" />
+
+    <!-- Notification Icon shown ONLY when isINS is "Yes" -->
+    <ImageView
+        android:id="@+id/iv_ins_notification"
+        android:layout_width="26dp"
+        android:layout_height="26dp"
+        android:layout_alignParentEnd="true"
+        android:layout_centerVertical="true"
+        android:layout_marginEnd="10dp"
+        android:contentDescription="Instruction Alert"
+        android:elevation="3dp"
+        android:src="@drawable/ic_notification_bell"
+        android:visibility="gone" />
+
+</RelativeLayout>

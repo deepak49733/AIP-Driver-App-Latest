@@ -91,6 +91,10 @@ public class FarmInfo {
     @SerializedName("DirectionstoSemenDropSite")
     private String directionToSemenDropSite;
 
+    @SerializedName("Instruction")
+    @Expose
+    private String instruction;
+
     @SerializedName("Latitude")
     private String latitude;
 
@@ -327,6 +331,14 @@ public class FarmInfo {
         this.directionToSemenDropSite = directionToSemenDropSite;
     }
 
+    public String getInstruction() {
+        return instruction;
+    }
+
+    public void setInstruction(String instruction) {
+        this.instruction = instruction;
+    }
+
     public String getLatitude() {
         return latitude;
     }
@@ -405,6 +417,29 @@ public class FarmInfo {
 
     public void setDelZipCode(String delZipCode) {
         this.delZipCode = delZipCode;
+    }
+
+    public String getFormattedDeliveryAddress() {
+        StringBuilder sb = new StringBuilder();
+        String addr = (delAddress != null && !delAddress.trim().isEmpty()) ? delAddress.trim() : (address != null ? address.trim() : "");
+        String cty = (delCity != null && !delCity.trim().isEmpty()) ? delCity.trim() : (city != null ? city.trim() : "");
+        String st = (delState != null && !delState.trim().isEmpty()) ? delState.trim() : (state != null ? state.trim() : "");
+        String zip = (delZipCode != null && !delZipCode.trim().isEmpty()) ? delZipCode.trim() : (zipCode != null ? zipCode.trim() : "");
+
+        if (!addr.isEmpty()) sb.append(addr);
+        if (!cty.isEmpty()) {
+            if (sb.length() > 0) sb.append(", ");
+            sb.append(cty);
+        }
+        if (!st.isEmpty()) {
+            if (sb.length() > 0) sb.append(", ");
+            sb.append(st);
+        }
+        if (!zip.isEmpty()) {
+            if (sb.length() > 0) sb.append(" ");
+            sb.append(zip);
+        }
+        return sb.toString();
     }
 
     public String getDelCourierRoute() {

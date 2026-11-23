@@ -52,15 +52,33 @@ class FarmDetailSheet (
         ): View {
             return inflater.inflate(R.layout.sheet_farm_detail, container, false)
         }
-    private fun showImageLarge(userImage1: String) {
-        clLargeView.visibility=VISIBLE
+    private fun showImageLarge(userImage1: String?) {
+        if (userImage1.isNullOrBlank() || !isAdded) return
+        val ctx = context ?: return
+        val dialog = android.app.Dialog(ctx, android.R.style.Theme_Black_NoTitleBar_Fullscreen)
+        dialog.requestWindowFeature(android.view.Window.FEATURE_NO_TITLE)
+        val dialogView = LayoutInflater.from(ctx).inflate(R.layout.dialog_full_screen_image, null)
+        dialog.setContentView(dialogView)
+
+        dialog.window?.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
+        dialog.window?.setBackgroundDrawable(android.graphics.drawable.ColorDrawable(android.graphics.Color.BLACK))
+
+        val ivFullImage = dialogView.findViewById<ImageView>(R.id.iv_full_image)
+        val ivCloseDialog = dialogView.findViewById<ImageView>(R.id.iv_close_dialog)
+
         val requestOptions = RequestOptions()
             .diskCacheStrategy(DiskCacheStrategy.ALL)
+            .placeholder(R.drawable.ic_launcher_)
             .error(R.drawable.ic_launcher_)
-        Glide.with(requireContext())
+
+        Glide.with(ctx)
             .load(userImage1)
             .apply(requestOptions)
-            .into(ivLargeView)
+            .into(ivFullImage)
+
+        ivCloseDialog.setOnClickListener { dialog.dismiss() }
+        dialogView.setOnClickListener { dialog.dismiss() }
+        dialog.show()
     }
         override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
             super.onViewCreated(view, savedInstanceState)
@@ -86,8 +104,9 @@ class FarmDetailSheet (
             emergencyMobile.text = it.farmEmergencyNo
             emergencyAlternateMobile.text = it.farmEmergencyNo_2nd
             
-            if (!it.delAddress.isNullOrBlank()) {
-                farmAddress.text = it.delAddress
+            val formattedAddr = it.getFormattedDeliveryAddress()
+            if (!formattedAddr.isNullOrBlank()) {
+                farmAddress.text = formattedAddr
             } else {
                 val lat = it.latitude.toDoubleOrNull()
                 val lng = it.longitude.toDoubleOrNull()
@@ -102,10 +121,11 @@ class FarmDetailSheet (
                     farmAddress.text = "Invalid location"
                 }
             }
-            instruction.text = it.callaheadinstructionstext
+            instruction.text = if (!it.instruction.isNullOrBlank()) it.instruction else it.callaheadinstructionstext
 
             val requestOptions = RequestOptions()
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
+                .placeholder(R.drawable.ic_launcher_)
                 .error(R.drawable.ic_launcher_)
             Log.d("Analysis__","Loading farm image with URL: ${ApiClient.BASE_URL+it.userImage1}")
             Glide.with(requireContext())
@@ -120,19 +140,25 @@ class FarmDetailSheet (
                 .into(ivFarmDrop)
         }
             farmMobile.setOnClickListener {
-                val intent = Intent(Intent.ACTION_DIAL)
-                intent.data = Uri.parse("tel:${farmMobile.text}")
-                startActivity(intent)
+                val num = farmMobile.text.toString().trim()
+                if (num.isNotEmpty()) {
+                    val intent = Intent(Intent.ACTION_DIAL, Uri.parse("tel:$num"))
+                    startActivity(intent)
+                }
             }
             emergencyAlternateMobile.setOnClickListener {
-                val intent = Intent(Intent.ACTION_DIAL)
-                intent.data = Uri.parse("tel:${farmMobile.text}")
-                startActivity(intent)
+                val num = emergencyAlternateMobile.text.toString().trim()
+                if (num.isNotEmpty()) {
+                    val intent = Intent(Intent.ACTION_DIAL, Uri.parse("tel:$num"))
+                    startActivity(intent)
+                }
             }
             emergencyMobile.setOnClickListener {
-                val intent = Intent(Intent.ACTION_DIAL)
-                intent.data = Uri.parse("tel:${farmMobile.text}")
-                startActivity(intent)
+                val num = emergencyMobile.text.toString().trim()
+                if (num.isNotEmpty()) {
+                    val intent = Intent(Intent.ACTION_DIAL, Uri.parse("tel:$num"))
+                    startActivity(intent)
+                }
             }
             ivBack.setOnClickListener {
                 dismiss()
@@ -141,7 +167,14 @@ class FarmDetailSheet (
                 showImageLarge(ApiClient.BASE_URL+farmInfo?.userImage1) }
             ivFarmDrop.setOnClickListener { _ ->
                 showImageLarge(ApiClient.BASE_URL+farmInfo?.semenDropLocationImage) }
-            ivClose.setOnClickListener { clLargeView.visibility=GONE }
+            ivClose.setOnClickListener {
+                clLargeView.visibility = GONE
+                view.findViewById<View>(R.id.bgTrasnparent)?.visibility = GONE
+            }
+            view.findViewById<View>(R.id.bgTrasnparent)?.setOnClickListener {
+                clLargeView.visibility = GONE
+                it.visibility = GONE
+            }
         }
 
     fun refreshData() {
@@ -180,8 +213,9 @@ class FarmDetailSheet (
                         if (!updatedFarm.farmEmergencyNo_2nd.isNullOrBlank()) emergencyAlternateMobile?.text = updatedFarm.farmEmergencyNo_2nd
                         if (!updatedFarm.callaheadinstructionstext.isNullOrBlank()) instruction?.text = updatedFarm.callaheadinstructionstext
 
-                        if (!updatedFarm.delAddress.isNullOrBlank()) {
-                            farmAddress?.text = updatedFarm.delAddress
+                        val formattedAddr = updatedFarm.getFormattedDeliveryAddress()
+                        if (!formattedAddr.isNullOrBlank()) {
+                            farmAddress?.text = formattedAddr
                         }
                     }
                 }
@@ -225,12 +259,14 @@ class FarmDetailSheet (
                                 if (!updatedFarm.farmEmergencyNo_2nd.isNullOrBlank()) emergencyAlternateMobile?.text = updatedFarm.farmEmergencyNo_2nd
                                 if (!updatedFarm.callaheadinstructionstext.isNullOrBlank()) instruction?.text = updatedFarm.callaheadinstructionstext
 
-                                if (!updatedFarm.delAddress.isNullOrBlank()) {
-                                    farmAddress?.text = updatedFarm.delAddress
+                                val formattedAddr = updatedFarm.getFormattedDeliveryAddress()
+                                if (!formattedAddr.isNullOrBlank()) {
+                                    farmAddress?.text = formattedAddr
                                 }
 
                                 val requestOptions = RequestOptions()
                                     .diskCacheStrategy(DiskCacheStrategy.ALL)
+                                    .placeholder(R.drawable.ic_launcher_)
                                     .error(R.drawable.ic_launcher_)
 
                                 val userImg = updatedFarm.userImage1 ?: ""

@@ -21,6 +21,8 @@ import com.sc.aipdriver.activities.models.ReceiptDetails;
 import com.sc.aipdriver.activities.models.ReceiptResponse;
 import com.sc.aipdriver.activities.models.ReceiptResponseMain;
 import com.sc.aipdriver.activities.models.RideFinishRequest;
+import com.sc.aipdriver.activities.models.RouteDriverScheduleRequest;
+import com.sc.aipdriver.activities.models.RouteDriverScheduleResponse;
 import com.sc.aipdriver.activities.models.RouteListData;
 import com.sc.aipdriver.activities.models.RouteLog;
 import com.sc.aipdriver.activities.models.StartDataSend;
@@ -76,6 +78,15 @@ public interface ApiInterface {
     Call<BaseResponse<List<PriorityFarmData>>> getFarmsWithPriority(@Query("RoutName") String rotename, @Query("orgId") String orgId, @Query("ParentId") String parentId, @Query("driverId") String driverId, @Header("Token") String token);
  @GET("/api/FarmPriorityOD")
     Call<BaseResponse<List<PriorityFarmData>>> getFarmsWithPriorityDateWise(@Query("RoutName") String rotename, @Query("orgId") String orgId, @Query("ParentId") String parentId, @Query("DateName") String date, @Query("driverId") String driverId, @Header("Token") String token);
+
+    @GET("/api/FarmINS")
+    Call<BaseResponse<List<PriorityFarmData>>> getFarmINS(
+            @Query("RoutName") String routName,
+            @Query("orgId") String orgId,
+            @Query("DateName") String dateName,
+            @Query("driverid") String driverId,
+            @Header("Token") String token
+    );
 
     @GET("/api/FarmPriorityOD")
     Call<BaseResponse<Integer>> checkFarmPriorityODStatus(
@@ -223,6 +234,18 @@ public interface ApiInterface {
             @Header("Token") String token
     );
 
+    @GET("/api/GetSchedule")
+    Call<BaseResponse<Integer>> getSchedule(
+            @Query("driverId") String driverId,
+            @Header("Token") String token
+    );
+
+    @GET("/api/UpdateSchedule")
+    Call<CommonError> updateSchedule(
+            @Query("driverId") String driverId,
+            @Header("Token") String token
+    );
+
     @Multipart
     @POST("/api/EndFarmImage/{id}")
     Call<ResponseBody> uploadFarmEndImage(
@@ -232,5 +255,11 @@ public interface ApiInterface {
             @Part MultipartBody.Part img2,
             @Part MultipartBody.Part img3,
             @Part MultipartBody.Part img4
+    );
+
+    @POST("/api/RouteDriverSchedule")
+    Call<RouteDriverScheduleResponse> getRouteDriverSchedule(
+            @Body RouteDriverScheduleRequest request,
+            @Header("Token") String token
     );
 }

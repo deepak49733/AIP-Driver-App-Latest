@@ -44,6 +44,32 @@
             android:name=".activities.ui.ImprovedFarmList"
             android:exported="false" />
         <activity
+            android:name=".activities.ui.DashboardActivity"
+            android:exported="false"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".activities.ui.SelectRouteNew"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activities.ui.FarmListRouteNew"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activities.ui.MapsActivityNewRoute"
+            android:exported="false"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme" />
+        <activity
+            android:name=".activities.ui.FarmDetailActivityNew"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activities.ui.MonthlyScheduleActivityNew"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+        <activity
             android:name=".activities.ui.FarmDetailActivity"
             android:exported="false" />
         <activity
@@ -101,6 +127,10 @@
             android:name=".activities.ui.FarmListRoute"
             android:exported="false"
             android:screenOrientation="portrait" />
+
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="@string/google_key" />
 
         <meta-data
             android:name="com.google.android.gms.version"

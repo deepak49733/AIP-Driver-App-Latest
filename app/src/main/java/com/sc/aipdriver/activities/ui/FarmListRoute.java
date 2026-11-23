@@ -23,6 +23,7 @@ import android.net.NetworkRequest;
 import android.os.Build;
 import android.os.Bundle;
 
+import java.util.Collections;
 import android.os.CountDownTimer;
 import android.os.Handler;
 import android.os.Looper;
@@ -736,17 +737,7 @@ public class FarmListRoute extends AppCompatActivity implements OnClickSubmit, R
         ivBack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
-                backPressed = true;
-                if (farmlist.size() > 0) {
-                    if (isAnyFarmGreen()) {
-                        Toast.makeText(FarmListRoute.this, "Please complete or cancel the ride first.", Toast.LENGTH_SHORT).show();
-                        return;
-                    }
-                }
-                checkRide();
-
-
+                finish();
             }
         });
         tvCancel.setOnClickListener(new View.OnClickListener() {
@@ -1058,6 +1049,8 @@ public class FarmListRoute extends AppCompatActivity implements OnClickSubmit, R
                                 .filter(farm -> farm.getRemove() == 0)
                                 .collect(Collectors.toList());
 
+                        sortImprovedFarmsByPriority(farms);
+
                         Executors.newSingleThreadExecutor().execute(() -> {
                             AppDatabase db = AppDatabase.Companion.getDatabase(FarmListRoute.this);
 
@@ -1197,16 +1190,8 @@ public class FarmListRoute extends AppCompatActivity implements OnClickSubmit, R
 
     @Override
     public void onBackPressed() {
-
-        backPressed = true;
-        if (isAnyFarmGreen()) {
-            Toast.makeText(FarmListRoute.this, "Please complete or cancel the ride first.", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        checkRide();
-        //  goToDateSelection();
-
+        super.onBackPressed();
+        finish();
     }
 
 
@@ -1706,6 +1691,8 @@ public class FarmListRoute extends AppCompatActivity implements OnClickSubmit, R
                                 .filter(farm -> farm.getRemove() == 0)
                                 .collect(Collectors.toList());
 
+                        sortFarmsByPriority(farms);
+
                         farmlist.clear();
                         farmlist.addAll(farms);
                         routeid = farms.get(0).getRouteID() + "";
@@ -1802,8 +1789,8 @@ public class FarmListRoute extends AppCompatActivity implements OnClickSubmit, R
             showNoInternetRetryDialog(this::getFarmsByRoute);
             return;
         }
-        ivBack.setVisibility(GONE);
-        title.setVisibility(GONE);
+        ivBack.setVisibility(View.VISIBLE);
+        title.setVisibility(View.VISIBLE);
         Executors.newSingleThreadExecutor().execute(() -> {
 
             AppDatabase db = AppDatabase.Companion.getDatabase(FarmListRoute.this);
@@ -1811,6 +1798,7 @@ public class FarmListRoute extends AppCompatActivity implements OnClickSubmit, R
             String formattedDate = formatToMMDDYYYY(rawDate);
 
             List<PriorityFarmData> offlineFarms = db.priorityFarmDao().getFarmsByDate(formattedDate);
+            sortFarmsByPriority(offlineFarms);
 
             runOnUiThread(() -> {
 
@@ -1827,6 +1815,36 @@ public class FarmListRoute extends AppCompatActivity implements OnClickSubmit, R
 //                        Toast.LENGTH_SHORT).show();
             });
 
+        });
+    }
+
+    private void sortFarmsByPriority(List<PriorityFarmData> list) {
+        if (list == null || list.isEmpty()) return;
+        Collections.sort(list, (f1, f2) -> {
+            int p1 = (f1 != null && f1.getPriority() != null) ? f1.getPriority() : Integer.MAX_VALUE;
+            int p2 = (f2 != null && f2.getPriority() != null) ? f2.getPriority() : Integer.MAX_VALUE;
+            if (p1 != p2) {
+                return Integer.compare(p1, p2);
+            } else {
+                String name1 = (f1 != null && f1.getFarmName() != null) ? f1.getFarmName() : "";
+                String name2 = (f2 != null && f2.getFarmName() != null) ? f2.getFarmName() : "";
+                return name1.compareToIgnoreCase(name2);
+            }
+        });
+    }
+
+    private void sortImprovedFarmsByPriority(List<ImprovedPriorityFarmData> list) {
+        if (list == null || list.isEmpty()) return;
+        Collections.sort(list, (f1, f2) -> {
+            int p1 = (f1 != null && f1.getPriority() != null) ? f1.getPriority() : Integer.MAX_VALUE;
+            int p2 = (f2 != null && f2.getPriority() != null) ? f2.getPriority() : Integer.MAX_VALUE;
+            if (p1 != p2) {
+                return Integer.compare(p1, p2);
+            } else {
+                String name1 = (f1 != null && f1.getFarmName() != null) ? f1.getFarmName() : "";
+                String name2 = (f2 != null && f2.getFarmName() != null) ? f2.getFarmName() : "";
+                return name1.compareToIgnoreCase(name2);
+            }
         });
     }
 
