@@ -158,6 +158,7 @@ class ImprovedFarmList : AppCompatActivity(), OnImprovedItemClick, OnClickImprov
     private var receiptListDialog: Dialog? = null
     var receiptAdapter: ReceiptAdapter? = null
     var btnFinishRide: Button? = null
+    var btnTransferRide: Button? = null
     var alReceipts: java.util.ArrayList<ReceiptResponse?> = java.util.ArrayList<ReceiptResponse?>()
     private val SkyLabLatitude = 28.440766
     private val SkyLabLongitude = 77.070499
@@ -236,6 +237,7 @@ class ImprovedFarmList : AppCompatActivity(), OnImprovedItemClick, OnClickImprov
         btnAddReceipt = findViewById(R.id.btn_add_receipt)
         btnViewReceipt = findViewById(R.id.btn_view_receipt)
         btnFinishRide = findViewById(R.id.endRoute)
+        btnTransferRide = findViewById(R.id.btn_transfer_ride)
         clLargeImage = findViewById(R.id.cl_largeImage)
         ivLargeView = findViewById(R.id.iv_largeview)
         ivRefresh = findViewById(R.id.refresh)
@@ -380,6 +382,14 @@ class ImprovedFarmList : AppCompatActivity(), OnImprovedItemClick, OnClickImprov
                     }
                 }, 1000) // 1 second delay
             }
+        }
+
+        btnTransferRide?.setOnClickListener {
+            val intent = Intent(this@ImprovedFarmList, TransferRideActivity::class.java).apply {
+                putExtra("orderdate", orderDate)
+                putExtra("routeid", routeid)
+            }
+            startActivity(intent)
         }
 
         syncStarted.observe(this) { isSyncing ->

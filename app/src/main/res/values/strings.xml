@@ -72,6 +72,7 @@
     <string name="done">Done</string>
     <string name="finish">Finish </string>
     <string name="finishride">Finish Ride</string>
+    <string name="transfer_ride">Transfer Ride</string>
     <string name="title_activity_maps2">Map</string>
     <string name="alert_for_back">You can not go back, Untill you finish or cancel the ride.</string>
     <string name="navigate">Do you want navigation on route ?</string>

@@ -7,6 +7,12 @@ import com.sc.aipdriver.activities.models.CommonError;
 import com.sc.aipdriver.activities.models.DriverLoginResponse;
 import com.sc.aipdriver.activities.models.DriverLoginStatusResponse;
 import com.sc.aipdriver.activities.models.DriverPermissionModel;
+import com.sc.aipdriver.activities.models.DriverTransferData;
+import com.sc.aipdriver.activities.models.InitiateOrderTransferData;
+import com.sc.aipdriver.activities.models.InitiateOrderTransferRequest;
+import com.sc.aipdriver.activities.models.UndeliveredFarmsWrapper;
+import com.sc.aipdriver.activities.models.UpdateTransferLocationData;
+import com.sc.aipdriver.activities.models.UpdateTransferLocationRequest;
 import com.sc.aipdriver.activities.models.EmailRequest;
 import com.sc.aipdriver.activities.models.FarmData;
 import com.sc.aipdriver.activities.models.FormDetails;
@@ -207,6 +213,14 @@ public interface ApiInterface {
             @Part MultipartBody.Part img4
     );
 
+    @GET("/api/GetDriversForTransfer")
+    Call<BaseResponse<List<DriverTransferData>>> getDriversForTransfer(
+            @Query("driverId") String driverId,
+            @Query("OrgId") String orgId,
+            @Header("Token") String token
+    );
+
+
     @POST("/api/DispatchETAMail")
     Call<CommonError> dispatchETAMail(
             @Body EmailRequest emailRequest, @Header("Token") String token
@@ -260,6 +274,26 @@ public interface ApiInterface {
     @POST("/api/RouteDriverSchedule")
     Call<RouteDriverScheduleResponse> getRouteDriverSchedule(
             @Body RouteDriverScheduleRequest request,
+            @Header("Token") String token
+    );
+
+    @GET("/api/GetUndeliveredFarms")
+    Call<BaseResponse<UndeliveredFarmsWrapper>> getUndeliveredFarms(
+            @Query("driverId") String driverId,
+            @Query("routeId") String routeId,
+            @Query("orderDate") String orderDate,
+            @Header("Token") String token
+    );
+
+    @POST("/api/InitiateOrderTransfer")
+    Call<BaseResponse<InitiateOrderTransferData>> initiateOrderTransfer(
+            @Body InitiateOrderTransferRequest request,
+            @Header("Token") String token
+    );
+
+    @POST("/api/UpdateTransferLocation")
+    Call<BaseResponse<UpdateTransferLocationData>> updateTransferLocation(
+            @Body UpdateTransferLocationRequest request,
             @Header("Token") String token
     );
 }
